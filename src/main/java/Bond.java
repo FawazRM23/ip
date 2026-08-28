@@ -1,10 +1,14 @@
 import java.util.Scanner;
 
- //Chatbot  echoes commands until the user enters "bye".
+
+// A chatbot that stores tasks entered by the user and displays them on request.
 
 public class Bond {
 
-    // Starts Bond, reads commands, and echoes them to the user.
+    private static final int MAX_TASKS = 100;
+
+
+     // Starts Bond and processes user commands until the user enters "bye".
 
     public static void main(String[] args) {
         String divider =
@@ -16,6 +20,8 @@ public class Bond {
                 + "/_____/\\____/_/ /_/\\__,_/\n";
 
         Scanner scanner = new Scanner(System.in);
+        String[] tasks = new String[MAX_TASKS];
+        int taskCount = 0;
 
         System.out.println(divider);
         System.out.print(banner);
@@ -34,7 +40,16 @@ public class Bond {
                 break;
             }
 
-            System.out.println("    " + command);
+            if (command.equals("list")) {
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println("    " + (i + 1) + ". " + tasks[i]);
+                }
+            } else {
+                tasks[taskCount] = command;
+                taskCount++;
+                System.out.println("    added: " + command);
+            }
+
             System.out.println(divider);
         }
 
