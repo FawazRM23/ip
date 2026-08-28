@@ -21,6 +21,7 @@ public class Bond {
 
         Scanner scanner = new Scanner(System.in);
         String[] tasks = new String[MAX_TASKS];
+        boolean[] isDone = new boolean[MAX_TASKS];
         int taskCount = 0;
 
         System.out.println(divider);
@@ -41,9 +42,17 @@ public class Bond {
             }
 
             if (command.equals("list")) {
+                System.out.println("    Here are the missions in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println("    " + (i + 1) + ". " + tasks[i]);
+                    String status = isDone[i] ? "X" : " ";
+                    System.out.println("    " + (i + 1) + ".[" + status + "] " + tasks[i]);
                 }
+            } else if (command.startsWith("mark ")) {
+                int taskNumber = Integer.parseInt(command.substring(5).trim());
+                int taskIndex = taskNumber - 1;
+                isDone[taskIndex] = true;
+                System.out.println("    Nice work, agent! Another mission accomplished!:");
+                System.out.println("      [X] " + tasks[taskIndex]);
             } else {
                 tasks[taskCount] = command;
                 taskCount++;
