@@ -1,3 +1,5 @@
+package bond;
+
 /**
  * Represents a task with a description and completion status.
  */
@@ -9,7 +11,7 @@ public class Task {
     /**
      * Creates a task that is initially not done.
      *
-     * @param description description of the task
+     * @param description Description of the task.
      */
     public Task(String description) {
         this.description = description;
@@ -19,7 +21,7 @@ public class Task {
     /**
      * Returns the symbol used to display the task's completion status.
      *
-     * @return "X" when done, or a space when not done
+     * @return "X" when done, or a space when not done.
      */
     public String getStatusIcon() {
         return isDone ? "X" : " ";
@@ -42,7 +44,7 @@ public class Task {
     /**
      * Returns the task's status icon followed by its description.
      *
-     * @return display form of this task
+     * @return Display form of this task.
      */
     @Override
     public String toString() {

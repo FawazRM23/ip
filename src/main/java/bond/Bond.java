@@ -1,8 +1,9 @@
+package bond;
+
 import java.util.Scanner;
 
-
 /**
- * A chatbot that stores tasks entered by the user and displays them on request.
+ * Provides a chatbot that stores tasks entered by the user and displays them on request.
  */
 public class Bond {
 
@@ -11,7 +12,7 @@ public class Bond {
     /**
      * Starts Bond and processes user commands until the user enters "bye".
      *
-     * @param args command-line arguments, which are not used
+     * @param args Command-line arguments, which are not used.
      */
     public static void main(String[] args) {
         String divider =
