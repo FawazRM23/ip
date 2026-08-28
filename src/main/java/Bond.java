@@ -1,15 +1,18 @@
 import java.util.Scanner;
 
 
-// A chatbot that stores tasks entered by the user and displays them on request.
-
+/**
+ * A chatbot that stores tasks entered by the user and displays them on request.
+ */
 public class Bond {
 
     private static final int MAX_TASKS = 100;
 
-
-     // Starts Bond and processes user commands until the user enters "bye".
-
+    /**
+     * Starts Bond and processes user commands until the user enters "bye".
+     *
+     * @param args command-line arguments, which are not used
+     */
     public static void main(String[] args) {
         String divider =
                 "    ____________________________________________________________";
@@ -20,8 +23,7 @@ public class Bond {
                 + "/_____/\\____/_/ /_/\\__,_/\n";
 
         Scanner scanner = new Scanner(System.in);
-        String[] tasks = new String[MAX_TASKS];
-        boolean[] isDone = new boolean[MAX_TASKS];
+        Task[] tasks = new Task[MAX_TASKS];
         int taskCount = 0;
 
         System.out.println(divider);
@@ -44,23 +46,22 @@ public class Bond {
             if (command.equals("list")) {
                 System.out.println("    Here are the missions in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    String status = isDone[i] ? "X" : " ";
-                    System.out.println("    " + (i + 1) + ".[" + status + "] " + tasks[i]);
+                    System.out.println("    " + (i + 1) + "." + tasks[i]);
                 }
             } else if (command.startsWith("mark ")) {
                 int taskNumber = Integer.parseInt(command.substring(5).trim());
                 int taskIndex = taskNumber - 1;
-                isDone[taskIndex] = true;
+                tasks[taskIndex].markAsDone();
                 System.out.println("    Nice work, agent! Another mission accomplished!:");
-                System.out.println("      [X] " + tasks[taskIndex]);
+                System.out.println("      " + tasks[taskIndex]);
             } else if (command.startsWith("unmark ")) {
                 int taskNumber = Integer.parseInt(command.substring(7).trim());
                 int taskIndex = taskNumber - 1;
-                isDone[taskIndex] = false;
+                tasks[taskIndex].markAsNotDone();
                 System.out.println("    OK, I've marked this mission as not accomplished yet:");
-                System.out.println("      [ ] " + tasks[taskIndex]);
+                System.out.println("      " + tasks[taskIndex]);
             } else {
-                tasks[taskCount] = command;
+                tasks[taskCount] = new Task(command);
                 taskCount++;
                 System.out.println("    added: " + command);
             }
