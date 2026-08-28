@@ -34,6 +34,8 @@ For every task that creates, edits, refactors, or reviews Java source or test co
 
 ## Git
 
+For every task that proposes, writes, reviews, or creates a commit, load and follow the project-specific `seedu-git-standard` skill at `.codex/skills/seedu-git-standard/SKILL.md`. Every future commit in this project must comply with that skill. Also apply its branch-naming rules whenever proposing or creating a branch.
+
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
