@@ -21,6 +21,8 @@ public class Bond {
             todo.markAsDone();
         } else if (task instanceof Deadline deadline) {
             deadline.markAsDone();
+        } else if (task instanceof Event event) {
+            event.markAsDone();
         }
     }
 
@@ -36,6 +38,8 @@ public class Bond {
             todo.markAsNotDone();
         } else if (task instanceof Deadline deadline) {
             deadline.markAsNotDone();
+        } else if (task instanceof Event event) {
+            event.markAsNotDone();
         }
     }
 
@@ -105,6 +109,19 @@ public class Bond {
                 String description = deadlineParts[0].trim();
                 String by = deadlineParts[1].trim();
                 tasks[taskCount] = new Deadline(description, by);
+                taskCount++;
+                String missionNoun = taskCount == 1 ? "mission" : "missions";
+                System.out.println("    Got it. I've added this mission:");
+                System.out.println("      " + tasks[taskCount - 1]);
+                System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
+            } else if (command.startsWith("event ")) {
+                String eventDetails = command.substring(6).trim();
+                String[] eventParts = eventDetails.split(" /from ", 2);
+                String description = eventParts[0].trim();
+                String[] timeParts = eventParts[1].split(" /to ", 2);
+                String from = timeParts[0].trim();
+                String to = timeParts[1].trim();
+                tasks[taskCount] = new Event(description, from, to);
                 taskCount++;
                 String missionNoun = taskCount == 1 ? "mission" : "missions";
                 System.out.println("    Got it. I've added this mission:");
