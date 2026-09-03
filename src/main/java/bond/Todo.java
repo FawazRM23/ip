@@ -3,10 +3,7 @@ package bond;
 /**
  * Represents a task without an attached date or time.
  */
-public class Todo {
-
-    private final String description;
-    private boolean isDone;
+public class Todo extends Task {
 
     /**
      * Creates a to-do task that is initially not done.
@@ -14,31 +11,7 @@ public class Todo {
      * @param description Description of the task.
      */
     public Todo(String description) {
-        this.description = description;
-        this.isDone = false;
-    }
-
-    /**
-     * Returns the symbol used to display the task's completion status.
-     *
-     * @return "X" when done, or a space when not done.
-     */
-    public String getStatusIcon() {
-        return isDone ? "X" : " ";
-    }
-
-    /**
-     * Marks this task as done.
-     */
-    public void markAsDone() {
-        isDone = true;
-    }
-
-    /**
-     * Marks this task as not done.
-     */
-    public void markAsNotDone() {
-        isDone = false;
+        super(description);
     }
 
     /**
@@ -48,6 +21,6 @@ public class Todo {
      */
     @Override
     public String toString() {
-        return "[T][" + getStatusIcon() + "] " + description;
+        return "[T]" + super.toString();
     }
 }

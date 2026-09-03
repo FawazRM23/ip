@@ -10,40 +10,6 @@ public class Bond {
     private static final int MAX_TASKS = 100;
 
     /**
-     * Marks a supported task as done.
-     *
-     * @param task Task to mark as done.
-     */
-    private static void markAsDone(Object task) {
-        if (task instanceof Task genericTask) {
-            genericTask.markAsDone();
-        } else if (task instanceof Todo todo) {
-            todo.markAsDone();
-        } else if (task instanceof Deadline deadline) {
-            deadline.markAsDone();
-        } else if (task instanceof Event event) {
-            event.markAsDone();
-        }
-    }
-
-    /**
-     * Marks a supported task as not done.
-     *
-     * @param task Task to mark as not done.
-     */
-    private static void markAsNotDone(Object task) {
-        if (task instanceof Task genericTask) {
-            genericTask.markAsNotDone();
-        } else if (task instanceof Todo todo) {
-            todo.markAsNotDone();
-        } else if (task instanceof Deadline deadline) {
-            deadline.markAsNotDone();
-        } else if (task instanceof Event event) {
-            event.markAsNotDone();
-        }
-    }
-
-    /**
      * Starts Bond and processes user commands until the user enters "bye".
      *
      * @param args Command-line arguments, which are not used.
@@ -58,7 +24,7 @@ public class Bond {
                 + "/_____/\\____/_/ /_/\\__,_/\n";
 
         Scanner scanner = new Scanner(System.in);
-        Object[] tasks = new Object[MAX_TASKS];
+        Task[] tasks = new Task[MAX_TASKS];
         int taskCount = 0;
 
         System.out.println(divider);
@@ -86,13 +52,13 @@ public class Bond {
             } else if (command.startsWith("mark ")) {
                 int taskNumber = Integer.parseInt(command.substring(5).trim());
                 int taskIndex = taskNumber - 1;
-                markAsDone(tasks[taskIndex]);
+                tasks[taskIndex].markAsDone();
                 System.out.println("    Nice work, agent! Another mission accomplished!:");
                 System.out.println("      " + tasks[taskIndex]);
             } else if (command.startsWith("unmark ")) {
                 int taskNumber = Integer.parseInt(command.substring(7).trim());
                 int taskIndex = taskNumber - 1;
-                markAsNotDone(tasks[taskIndex]);
+                tasks[taskIndex].markAsNotDone();
                 System.out.println("    OK, I've marked this mission as not accomplished yet:");
                 System.out.println("      " + tasks[taskIndex]);
             } else if (command.startsWith("todo ")) {
