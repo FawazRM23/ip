@@ -10,7 +10,7 @@ public class Bond {
     private static final int MAX_TASKS = 100;
 
     /**
-     * Marks either a generic task or a to-do task as done.
+     * Marks a supported task as done.
      *
      * @param task Task to mark as done.
      */
@@ -19,11 +19,13 @@ public class Bond {
             genericTask.markAsDone();
         } else if (task instanceof Todo todo) {
             todo.markAsDone();
+        } else if (task instanceof Deadline deadline) {
+            deadline.markAsDone();
         }
     }
 
     /**
-     * Marks either a generic task or a to-do task as not done.
+     * Marks a supported task as not done.
      *
      * @param task Task to mark as not done.
      */
@@ -32,6 +34,8 @@ public class Bond {
             genericTask.markAsNotDone();
         } else if (task instanceof Todo todo) {
             todo.markAsNotDone();
+        } else if (task instanceof Deadline deadline) {
+            deadline.markAsNotDone();
         }
     }
 
@@ -90,6 +94,17 @@ public class Bond {
             } else if (command.startsWith("todo ")) {
                 String description = command.substring(5).trim();
                 tasks[taskCount] = new Todo(description);
+                taskCount++;
+                String missionNoun = taskCount == 1 ? "mission" : "missions";
+                System.out.println("    Got it. I've added this mission:");
+                System.out.println("      " + tasks[taskCount - 1]);
+                System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
+            } else if (command.startsWith("deadline ")) {
+                String deadlineDetails = command.substring(9).trim();
+                String[] deadlineParts = deadlineDetails.split(" /by ", 2);
+                String description = deadlineParts[0].trim();
+                String by = deadlineParts[1].trim();
+                tasks[taskCount] = new Deadline(description, by);
                 taskCount++;
                 String missionNoun = taskCount == 1 ? "mission" : "missions";
                 System.out.println("    Got it. I've added this mission:");
