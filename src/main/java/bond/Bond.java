@@ -126,13 +126,7 @@ public class Bond {
 
     private static int addTodo(String command, Task[] tasks, int taskCount) {
         String description = command.substring(5).trim();
-        tasks[taskCount] = new Todo(description);
-        taskCount++;
-        String missionNoun = taskCount == 1 ? "mission" : "missions";
-        System.out.println("    Got it. I've added this mission:");
-        System.out.println("      " + tasks[taskCount - 1]);
-        System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
-        return taskCount;
+        return addTypedTask(new Todo(description), tasks, taskCount);
     }
 
     private static int addDeadline(String command, Task[] tasks, int taskCount) {
@@ -140,13 +134,7 @@ public class Bond {
         String[] deadlineParts = deadlineDetails.split(" /by ", 2);
         String description = deadlineParts[0].trim();
         String by = deadlineParts[1].trim();
-        tasks[taskCount] = new Deadline(description, by);
-        taskCount++;
-        String missionNoun = taskCount == 1 ? "mission" : "missions";
-        System.out.println("    Got it. I've added this mission:");
-        System.out.println("      " + tasks[taskCount - 1]);
-        System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
-        return taskCount;
+        return addTypedTask(new Deadline(description, by), tasks, taskCount);
     }
 
     private static int addEvent(String command, Task[] tasks, int taskCount) {
@@ -156,11 +144,15 @@ public class Bond {
         String[] timeParts = eventParts[1].split(" /to ", 2);
         String from = timeParts[0].trim();
         String to = timeParts[1].trim();
-        tasks[taskCount] = new Event(description, from, to);
+        return addTypedTask(new Event(description, from, to), tasks, taskCount);
+    }
+
+    private static int addTypedTask(Task task, Task[] tasks, int taskCount) {
+        tasks[taskCount] = task;
         taskCount++;
         String missionNoun = taskCount == 1 ? "mission" : "missions";
         System.out.println("    Got it. I've added this mission:");
-        System.out.println("      " + tasks[taskCount - 1]);
+        System.out.println("      " + task);
         System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
         return taskCount;
     }
