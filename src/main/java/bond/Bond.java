@@ -15,6 +15,13 @@ public class Bond {
             + "  / __  / __ \\/ __ \\/ __  /\n"
             + " / /_/ / /_/ / / / / /_/ /\n"
             + "/_____/\\____/_/ /_/\\__,_/\n";
+    private static final String COMMAND_BYE = "bye";
+    private static final String COMMAND_LIST = "list";
+    private static final String COMMAND_MARK_PREFIX = "mark ";
+    private static final String COMMAND_UNMARK_PREFIX = "unmark ";
+    private static final String COMMAND_TODO_PREFIX = "todo ";
+    private static final String COMMAND_DEADLINE_PREFIX = "deadline ";
+    private static final String COMMAND_EVENT_PREFIX = "event ";
 
     /**
      * Starts Bond and processes user commands until the user enters "bye".
@@ -56,7 +63,7 @@ public class Bond {
 
             System.out.println(DIVIDER);
 
-            if (command.equals("bye")) {
+            if (command.equals(COMMAND_BYE)) {
                 System.out.println("    Bye. Hope to embark on a mission again soon!");
                 System.out.println(DIVIDER);
                 break;
@@ -76,25 +83,25 @@ public class Bond {
      * @return Updated number of stored tasks.
      */
     private static int executeCommand(String command, Task[] tasks, int taskCount) {
-        if (command.equals("list")) {
+        if (command.equals(COMMAND_LIST)) {
             printTaskList(tasks, taskCount);
             return taskCount;
         }
-        if (command.startsWith("mark ")) {
+        if (command.startsWith(COMMAND_MARK_PREFIX)) {
             markTask(command, tasks);
             return taskCount;
         }
-        if (command.startsWith("unmark ")) {
+        if (command.startsWith(COMMAND_UNMARK_PREFIX)) {
             unmarkTask(command, tasks);
             return taskCount;
         }
-        if (command.startsWith("todo ")) {
+        if (command.startsWith(COMMAND_TODO_PREFIX)) {
             return addTodo(command, tasks, taskCount);
         }
-        if (command.startsWith("deadline ")) {
+        if (command.startsWith(COMMAND_DEADLINE_PREFIX)) {
             return addDeadline(command, tasks, taskCount);
         }
-        if (command.startsWith("event ")) {
+        if (command.startsWith(COMMAND_EVENT_PREFIX)) {
             return addEvent(command, tasks, taskCount);
         }
 
@@ -109,7 +116,7 @@ public class Bond {
     }
 
     private static void markTask(String command, Task[] tasks) {
-        int taskNumber = Integer.parseInt(command.substring(5).trim());
+        int taskNumber = Integer.parseInt(getCommandArgument(command, COMMAND_MARK_PREFIX));
         int taskIndex = taskNumber - 1;
         tasks[taskIndex].markAsDone();
         System.out.println("    Nice work, agent! Another mission accomplished!:");
@@ -117,7 +124,7 @@ public class Bond {
     }
 
     private static void unmarkTask(String command, Task[] tasks) {
-        int taskNumber = Integer.parseInt(command.substring(7).trim());
+        int taskNumber = Integer.parseInt(getCommandArgument(command, COMMAND_UNMARK_PREFIX));
         int taskIndex = taskNumber - 1;
         tasks[taskIndex].markAsNotDone();
         System.out.println("    OK, I've marked this mission as not accomplished yet:");
@@ -125,12 +132,12 @@ public class Bond {
     }
 
     private static int addTodo(String command, Task[] tasks, int taskCount) {
-        String description = command.substring(5).trim();
+        String description = getCommandArgument(command, COMMAND_TODO_PREFIX);
         return addTypedTask(new Todo(description), tasks, taskCount);
     }
 
     private static int addDeadline(String command, Task[] tasks, int taskCount) {
-        String deadlineDetails = command.substring(9).trim();
+        String deadlineDetails = getCommandArgument(command, COMMAND_DEADLINE_PREFIX);
         String[] deadlineParts = deadlineDetails.split(" /by ", 2);
         String description = deadlineParts[0].trim();
         String by = deadlineParts[1].trim();
@@ -138,13 +145,17 @@ public class Bond {
     }
 
     private static int addEvent(String command, Task[] tasks, int taskCount) {
-        String eventDetails = command.substring(6).trim();
+        String eventDetails = getCommandArgument(command, COMMAND_EVENT_PREFIX);
         String[] eventParts = eventDetails.split(" /from ", 2);
         String description = eventParts[0].trim();
         String[] timeParts = eventParts[1].split(" /to ", 2);
         String from = timeParts[0].trim();
         String to = timeParts[1].trim();
         return addTypedTask(new Event(description, from, to), tasks, taskCount);
+    }
+
+    private static String getCommandArgument(String command, String commandPrefix) {
+        return command.substring(commandPrefix.length()).trim();
     }
 
     private static int addTypedTask(Task task, Task[] tasks, int taskCount) {
