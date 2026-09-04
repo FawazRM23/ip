@@ -7,7 +7,6 @@ import java.util.Scanner;
  */
 public class Bond {
 
-    private static final int MAX_TASKS = 100;
     private static final String DIVIDER =
             "    ____________________________________________________________";
     private static final String BANNER = "    ____                  __\n"
@@ -30,10 +29,10 @@ public class Bond {
      */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Task[] tasks = new Task[MAX_TASKS];
+        TaskList taskList = new TaskList();
 
         showWelcomeMessage();
-        processCommands(scanner, tasks);
+        processCommands(scanner, taskList);
 
         scanner.close();
     }
@@ -53,11 +52,9 @@ public class Bond {
      * Reads and executes commands until the user exits Bond.
      *
      * @param scanner Source of user commands.
-     * @param tasks Storage for tasks created during the session.
+     * @param taskList Storage for tasks created during the session.
      */
-    private static void processCommands(Scanner scanner, Task[] tasks) {
-        int taskCount = 0;
-
+    private static void processCommands(Scanner scanner, TaskList taskList) {
         while (true) {
             String command = scanner.nextLine();
 
@@ -69,7 +66,7 @@ public class Bond {
                 break;
             }
 
-            taskCount = executeCommand(command, tasks, taskCount);
+            executeCommand(command, taskList);
             System.out.println(DIVIDER);
         }
     }
@@ -78,99 +75,100 @@ public class Bond {
      * Dispatches a command to the operation that handles it.
      *
      * @param command Command entered by the user.
-     * @param tasks Storage for tasks created during the session.
-     * @param taskCount Number of tasks currently stored.
-     * @return Updated number of stored tasks.
+     * @param taskList Storage for tasks created during the session.
      */
-    private static int executeCommand(String command, Task[] tasks, int taskCount) {
+    private static void executeCommand(String command, TaskList taskList) {
         if (command.equals(COMMAND_LIST)) {
-            printTaskList(tasks, taskCount);
-            return taskCount;
+            printTaskList(taskList);
+            return;
         }
         if (command.startsWith(COMMAND_MARK_PREFIX)) {
-            markTask(command, tasks);
-            return taskCount;
+            markTask(command, taskList);
+            return;
         }
         if (command.startsWith(COMMAND_UNMARK_PREFIX)) {
-            unmarkTask(command, tasks);
-            return taskCount;
+            unmarkTask(command, taskList);
+            return;
         }
         if (command.startsWith(COMMAND_TODO_PREFIX)) {
-            return addTodo(command, tasks, taskCount);
+            addTodo(command, taskList);
+            return;
         }
         if (command.startsWith(COMMAND_DEADLINE_PREFIX)) {
-            return addDeadline(command, tasks, taskCount);
+            addDeadline(command, taskList);
+            return;
         }
         if (command.startsWith(COMMAND_EVENT_PREFIX)) {
-            return addEvent(command, tasks, taskCount);
+            addEvent(command, taskList);
+            return;
         }
 
-        return addGenericTask(command, tasks, taskCount);
+        addGenericTask(command, taskList);
     }
 
-    private static void printTaskList(Task[] tasks, int taskCount) {
+    private static void printTaskList(TaskList taskList) {
         System.out.println("    Here are the missions in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println("    " + (i + 1) + "." + tasks[i]);
+        for (int i = 0; i < taskList.getSize(); i++) {
+            System.out.println("    " + (i + 1) + "." + taskList.getTask(i));
         }
     }
 
-    private static void markTask(String command, Task[] tasks) {
+    private static void markTask(String command, TaskList taskList) {
         int taskNumber = Integer.parseInt(getCommandArgument(command, COMMAND_MARK_PREFIX));
         int taskIndex = taskNumber - 1;
-        tasks[taskIndex].markAsDone();
+        Task task = taskList.getTask(taskIndex);
+        task.markAsDone();
         System.out.println("    Nice work, agent! Another mission accomplished!:");
-        System.out.println("      " + tasks[taskIndex]);
+        System.out.println("      " + task);
     }
 
-    private static void unmarkTask(String command, Task[] tasks) {
+    private static void unmarkTask(String command, TaskList taskList) {
         int taskNumber = Integer.parseInt(getCommandArgument(command, COMMAND_UNMARK_PREFIX));
         int taskIndex = taskNumber - 1;
-        tasks[taskIndex].markAsNotDone();
+        Task task = taskList.getTask(taskIndex);
+        task.markAsNotDone();
         System.out.println("    OK, I've marked this mission as not accomplished yet:");
-        System.out.println("      " + tasks[taskIndex]);
+        System.out.println("      " + task);
     }
 
-    private static int addTodo(String command, Task[] tasks, int taskCount) {
+    private static void addTodo(String command, TaskList taskList) {
         String description = getCommandArgument(command, COMMAND_TODO_PREFIX);
-        return addTypedTask(new Todo(description), tasks, taskCount);
+        addTypedTask(new Todo(description), taskList);
     }
 
-    private static int addDeadline(String command, Task[] tasks, int taskCount) {
+    private static void addDeadline(String command, TaskList taskList) {
         String deadlineDetails = getCommandArgument(command, COMMAND_DEADLINE_PREFIX);
         String[] deadlineParts = deadlineDetails.split(" /by ", 2);
         String description = deadlineParts[0].trim();
         String by = deadlineParts[1].trim();
-        return addTypedTask(new Deadline(description, by), tasks, taskCount);
+        addTypedTask(new Deadline(description, by), taskList);
     }
 
-    private static int addEvent(String command, Task[] tasks, int taskCount) {
+    private static void addEvent(String command, TaskList taskList) {
         String eventDetails = getCommandArgument(command, COMMAND_EVENT_PREFIX);
         String[] eventParts = eventDetails.split(" /from ", 2);
         String description = eventParts[0].trim();
         String[] timeParts = eventParts[1].split(" /to ", 2);
         String from = timeParts[0].trim();
         String to = timeParts[1].trim();
-        return addTypedTask(new Event(description, from, to), tasks, taskCount);
+        addTypedTask(new Event(description, from, to), taskList);
     }
 
     private static String getCommandArgument(String command, String commandPrefix) {
         return command.substring(commandPrefix.length()).trim();
     }
 
-    private static int addTypedTask(Task task, Task[] tasks, int taskCount) {
-        tasks[taskCount] = task;
-        taskCount++;
+    private static void addTypedTask(Task task, TaskList taskList) {
+        taskList.addTask(task);
+        int taskCount = taskList.getSize();
         String missionNoun = taskCount == 1 ? "mission" : "missions";
         System.out.println("    Got it. I've added this mission:");
         System.out.println("      " + task);
         System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
-        return taskCount;
     }
 
-    private static int addGenericTask(String command, Task[] tasks, int taskCount) {
-        tasks[taskCount] = new Task(command);
+    private static void addGenericTask(String command, TaskList taskList) {
+        taskList.addTask(new Task(command));
         System.out.println("    added: " + command);
-        return taskCount + 1;
     }
 }
