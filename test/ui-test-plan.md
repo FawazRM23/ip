@@ -9,7 +9,7 @@ cases in document order and stop at the first mismatch.
 - Build command (PowerShell):
 
   ```powershell
-  javac -d out src/main/java/bond/Bond.java src/main/java/bond/Task.java src/main/java/bond/TaskList.java src/main/java/bond/Todo.java src/main/java/bond/Deadline.java src/main/java/bond/Event.java
+  javac -d out src/main/java/bond/Bond.java src/main/java/bond/CommandType.java src/main/java/bond/Parser.java src/main/java/bond/Ui.java src/main/java/bond/Task.java src/main/java/bond/TaskList.java src/main/java/bond/Todo.java src/main/java/bond/Deadline.java src/main/java/bond/Event.java
   ```
 
 - Run command:
