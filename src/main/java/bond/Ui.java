@@ -105,12 +105,14 @@ public class Ui {
     }
 
     /**
-     * Displays confirmation that a generic task was added.
+     * Displays an error caused by invalid user input.
      *
-     * @param description Description of the task that was added.
+     * @param errorMessage Explanation of the error.
+     * @param correction Instruction for correcting the error.
      */
-    public void showGenericTaskAdded(String description) {
-        System.out.println("    added: " + description);
+    public void showError(String errorMessage, String correction) {
+        System.out.println("    Mission error: " + errorMessage);
+        System.out.println("    " + correction);
     }
 
     /**
