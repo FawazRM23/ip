@@ -1,4 +1,4 @@
-package bond;
+package bond.exception;
 
 /**
  * Represents a recoverable error caused by invalid user input.

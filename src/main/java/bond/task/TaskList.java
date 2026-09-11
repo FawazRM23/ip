@@ -1,4 +1,6 @@
-package bond;
+package bond.task;
+
+import bond.exception.BondException;
 
 /**
  * Stores the tasks created during a Bond session.

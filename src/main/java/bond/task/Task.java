@@ -1,4 +1,4 @@
-package bond;
+package bond.task;
 
 /**
  * Represents a task with a description and completion status.

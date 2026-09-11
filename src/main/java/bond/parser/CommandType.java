@@ -1,4 +1,4 @@
-package bond;
+package bond.parser;
 
 /**
  * Identifies the operation requested by a user command.

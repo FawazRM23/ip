@@ -1,5 +1,12 @@
 package bond;
 
+import bond.exception.BondException;
+import bond.parser.CommandType;
+import bond.parser.Parser;
+import bond.task.Task;
+import bond.task.TaskList;
+import bond.ui.Ui;
+
 /**
  * Coordinates Bond's user interface, command parsing, and task operations.
  */

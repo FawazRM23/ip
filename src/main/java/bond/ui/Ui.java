@@ -1,5 +1,7 @@
-package bond;
+package bond.ui;
 
+import bond.task.Task;
+import bond.task.TaskList;
 import java.util.Scanner;
 
 /**

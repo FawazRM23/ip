@@ -1,4 +1,10 @@
-package bond;
+package bond.parser;
+
+import bond.exception.BondException;
+import bond.task.Deadline;
+import bond.task.Event;
+import bond.task.Task;
+import bond.task.Todo;
 
 /**
  * Interprets user commands and converts their arguments into domain objects.
