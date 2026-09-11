@@ -406,3 +406,429 @@ bye
     Bye. Hope to embark on a mission again soon!
     ____________________________________________________________
 ```
+
+## UI-6: Reject a todo without a description
+
+**Aim:** Verify that a missing todo description does not add a task and that
+valid todo commands before and after the error remain correct.
+
+### Input 1
+
+```text
+todo survey perimeter
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] survey perimeter
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+todo
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Mission error: This todo mission has no description.
+    Brief me with: todo <description>.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+list
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] survey perimeter
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+todo prepare escape route
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] prepare escape route
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+list
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] survey perimeter
+    2.[T][ ] prepare escape route
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+bye
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-7: Validate deadline mission details
+
+**Aim:** Verify that each required deadline component is reported specifically,
+invalid deadlines are not stored, and valid deadlines remain correct.
+
+### Input 1
+
+```text
+deadline file report /by Friday
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] file report (by: Friday)
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+deadline
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Mission error: This deadline mission has no description.
+    Brief me with: deadline <description> /by <date or time>.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+list
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[D][ ] file report (by: Friday)
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+deadline secure documents
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Mission error: This deadline mission is missing its /by marker.
+    Brief me with: deadline <description> /by <date or time>.
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+deadline secure documents /by
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Mission error: This deadline mission has no date or time.
+    Brief me with: deadline <description> /by <date or time>.
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+deadline /by Monday
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Mission error: This deadline mission has no description.
+    Brief me with: deadline <description> /by <date or time>.
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+deadline contact M /by Monday
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] contact M (by: Monday)
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 8
+
+```text
+list
+```
+
+### Expected output 8
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[D][ ] file report (by: Friday)
+    2.[D][ ] contact M (by: Monday)
+    ____________________________________________________________
+```
+
+### Input 9
+
+```text
+bye
+```
+
+### Expected output 9
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-8: Validate event mission details
+
+**Aim:** Verify that each required event component is reported specifically,
+invalid events are not stored, and valid commands still update state correctly.
+
+### Input 1
+
+```text
+event gala /from 8pm /to 10pm
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [E][ ] gala (from: 8pm to: 10pm)
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+event
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission has no description.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+list
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[E][ ] gala (from: 8pm to: 10pm)
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+event surveillance
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission is missing its /from marker.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+event surveillance /from
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission has no starting date or time.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+event surveillance /from 8pm
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission is missing its /to marker.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+event surveillance /from /to 10pm
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission has no starting date or time.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 8
+
+```text
+event surveillance /from 8pm /to
+```
+
+### Expected output 8
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission has no ending date or time.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 9
+
+```text
+event /from 8pm /to 10pm
+```
+
+### Expected output 9
+
+```text
+    ____________________________________________________________
+    Mission error: This event mission has no description.
+    Brief me with: event <description> /from <start> /to <end>.
+    ____________________________________________________________
+```
+
+### Input 10
+
+```text
+todo file findings
+```
+
+### Expected output 10
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] file findings
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 11
+
+```text
+list
+```
+
+### Expected output 11
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[E][ ] gala (from: 8pm to: 10pm)
+    2.[T][ ] file findings
+    ____________________________________________________________
+```
+
+### Input 12
+
+```text
+bye
+```
+
+### Expected output 12
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
