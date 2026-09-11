@@ -9,7 +9,7 @@ cases in document order and stop at the first mismatch.
 - Build command (PowerShell):
 
   ```powershell
-  javac -d out src/main/java/bond/Bond.java src/main/java/bond/CommandType.java src/main/java/bond/Parser.java src/main/java/bond/Ui.java src/main/java/bond/Task.java src/main/java/bond/TaskList.java src/main/java/bond/Todo.java src/main/java/bond/Deadline.java src/main/java/bond/Event.java
+  javac -d out src/main/java/bond/Bond.java src/main/java/bond/BondException.java src/main/java/bond/CommandType.java src/main/java/bond/Parser.java src/main/java/bond/Ui.java src/main/java/bond/Task.java src/main/java/bond/TaskList.java src/main/java/bond/Todo.java src/main/java/bond/Deadline.java src/main/java/bond/Event.java
   ```
 
 - Run command:
@@ -163,6 +163,243 @@ bye
 ```
 
 ### Expected output 4
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-4: Reject unknown commands without storing them
+
+**Aim:** Verify that invalid commands between valid operations produce helpful
+errors, do not add tasks, and do not prevent later commands from running.
+
+### Input 1
+
+```text
+todo secure files
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] secure files
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+blah
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Mission error: I don't recognize that command.
+    Try: todo, deadline, event, list, mark, unmark, or bye.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+list
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] secure files
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+todo retrieve intel
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] retrieve intel
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+list now
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Mission error: I don't recognize that command.
+    Try: todo, deadline, event, list, mark, unmark, or bye.
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+list
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] secure files
+    2.[T][ ] retrieve intel
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+bye
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-5: Reject empty and case-mismatched commands
+
+**Aim:** Verify that edge-case commands do not change tasks and that Bond
+continues to accept valid commands after each error.
+
+### Input 1
+
+```text
+todo inspect equipment
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] inspect equipment
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2 (empty line)
+
+```text
+
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Mission error: I don't recognize that command.
+    Try: todo, deadline, event, list, mark, unmark, or bye.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+list
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect equipment
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+LIST
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Mission error: I don't recognize that command.
+    Try: todo, deadline, event, list, mark, unmark, or bye.
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+list
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect equipment
+    ____________________________________________________________
+```
+
+### Input 6 (one leading space)
+
+```text
+ list
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Mission error: I don't recognize that command.
+    Try: todo, deadline, event, list, mark, unmark, or bye.
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+list
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect equipment
+    ____________________________________________________________
+```
+
+### Input 8
+
+```text
+bye
+```
+
+### Expected output 8
 
 ```text
     ____________________________________________________________

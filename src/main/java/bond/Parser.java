@@ -44,7 +44,7 @@ public final class Parser {
         if (command.startsWith(COMMAND_EVENT_PREFIX)) {
             return CommandType.EVENT;
         }
-        return CommandType.GENERIC;
+        return CommandType.UNKNOWN;
     }
 
     /**
@@ -77,7 +77,6 @@ public final class Parser {
             case TODO -> new Todo(getCommandArgument(command, COMMAND_TODO_PREFIX));
             case DEADLINE -> createDeadline(command);
             case EVENT -> createEvent(command);
-            case GENERIC -> new Task(command);
             default -> throw new IllegalArgumentException("Command does not create a task");
         };
     }

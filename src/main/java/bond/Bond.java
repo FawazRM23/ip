@@ -5,6 +5,11 @@ package bond;
  */
 public class Bond {
 
+    private static final String UNKNOWN_COMMAND_MESSAGE =
+            "I don't recognize that command.";
+    private static final String UNKNOWN_COMMAND_CORRECTION =
+            "Try: todo, deadline, event, list, mark, unmark, or bye.";
+
     /**
      * Starts Bond and processes user commands until the user enters "bye".
      *
@@ -38,7 +43,11 @@ public class Bond {
                 break;
             }
 
-            executeCommand(command, commandType, taskList, ui);
+            try {
+                executeCommand(command, commandType, taskList, ui);
+            } catch (BondException e) {
+                ui.showError(e.getMessage(), e.getCorrection());
+            }
             ui.showDivider();
         }
     }
@@ -50,17 +59,18 @@ public class Bond {
      * @param commandType Type of operation requested by the command.
      * @param taskList Storage for tasks created during the session.
      * @param ui Console interface used to display results.
+     * @throws BondException If the command cannot be executed because of invalid user input.
      */
     private static void executeCommand(String command, CommandType commandType,
-            TaskList taskList, Ui ui) {
+            TaskList taskList, Ui ui) throws BondException {
         switch (commandType) {
             case LIST -> ui.showTaskList(taskList);
             case MARK -> markTask(command, taskList, ui);
             case UNMARK -> unmarkTask(command, taskList, ui);
             case TODO, DEADLINE, EVENT ->
                     addTypedTask(Parser.createTask(command, commandType), taskList, ui);
-            case GENERIC ->
-                    addGenericTask(Parser.createTask(command, commandType), command, taskList, ui);
+            case UNKNOWN -> throw new BondException(
+                    UNKNOWN_COMMAND_MESSAGE, UNKNOWN_COMMAND_CORRECTION);
             default -> throw new IllegalArgumentException("Command type cannot be executed here");
         }
     }
@@ -82,10 +92,5 @@ public class Bond {
     private static void addTypedTask(Task task, TaskList taskList, Ui ui) {
         taskList.addTask(task);
         ui.showTaskAdded(task, taskList.getSize());
-    }
-
-    private static void addGenericTask(Task task, String description, TaskList taskList, Ui ui) {
-        taskList.addTask(task);
-        ui.showGenericTaskAdded(description);
     }
 }
