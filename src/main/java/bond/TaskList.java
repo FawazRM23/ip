@@ -22,8 +22,15 @@ public class TaskList {
      * Adds a task to the end of the list.
      *
      * @param task Task to add.
+     * @throws BondException If the mission dossier has reached its capacity.
      */
-    public void addTask(Task task) {
+    public void addTask(Task task) throws BondException {
+        if (size >= MAX_TASKS) {
+            throw new BondException(
+                    "The mission dossier already holds " + MAX_TASKS + " missions.",
+                    "Start a new session before adding another mission.");
+        }
+
         tasks[size] = task;
         size++;
     }

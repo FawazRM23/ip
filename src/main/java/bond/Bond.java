@@ -105,7 +105,15 @@ public class Bond {
         ui.showTaskUnmarked(task);
     }
 
-    private static void addTypedTask(Task task, TaskList taskList, Ui ui) {
+    /**
+     * Adds a parsed mission to storage and reports the updated mission count.
+     *
+     * @param task Mission to store.
+     * @param taskList Storage for missions created during the session.
+     * @param ui Console interface used to display the result.
+     * @throws BondException If the mission dossier has reached its capacity.
+     */
+    private static void addTypedTask(Task task, TaskList taskList, Ui ui) throws BondException {
         taskList.addTask(task);
         ui.showTaskAdded(task, taskList.getSize());
     }
