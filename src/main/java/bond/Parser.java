@@ -7,8 +7,8 @@ public final class Parser {
 
     private static final String COMMAND_BYE = "bye";
     private static final String COMMAND_LIST = "list";
-    private static final String COMMAND_MARK_PREFIX = "mark ";
-    private static final String COMMAND_UNMARK_PREFIX = "unmark ";
+    private static final String COMMAND_MARK = "mark";
+    private static final String COMMAND_UNMARK = "unmark";
     private static final String COMMAND_TODO = "todo";
     private static final String COMMAND_DEADLINE = "deadline";
     private static final String COMMAND_EVENT = "event";
@@ -40,19 +40,19 @@ public final class Parser {
         if (command.equals(COMMAND_LIST)) {
             return CommandType.LIST;
         }
-        if (command.startsWith(COMMAND_MARK_PREFIX)) {
+        if (isCommandWithDetails(command, COMMAND_MARK)) {
             return CommandType.MARK;
         }
-        if (command.startsWith(COMMAND_UNMARK_PREFIX)) {
+        if (isCommandWithDetails(command, COMMAND_UNMARK)) {
             return CommandType.UNMARK;
         }
-        if (isTaskCreationCommand(command, COMMAND_TODO)) {
+        if (isCommandWithDetails(command, COMMAND_TODO)) {
             return CommandType.TODO;
         }
-        if (isTaskCreationCommand(command, COMMAND_DEADLINE)) {
+        if (isCommandWithDetails(command, COMMAND_DEADLINE)) {
             return CommandType.DEADLINE;
         }
-        if (isTaskCreationCommand(command, COMMAND_EVENT)) {
+        if (isCommandWithDetails(command, COMMAND_EVENT)) {
             return CommandType.EVENT;
         }
         return CommandType.UNKNOWN;
@@ -63,16 +63,48 @@ public final class Parser {
      *
      * @param command Command entered by the user.
      * @param commandType Type of the command.
+     * @param taskCount Number of missions available for selection.
      * @return Zero-based index of the referenced task.
+     * @throws BondException If the mission number is missing, malformed, or outside the task list.
      */
-    public static int getTaskIndex(String command, CommandType commandType) {
-        String commandPrefix = switch (commandType) {
-            case MARK -> COMMAND_MARK_PREFIX;
-            case UNMARK -> COMMAND_UNMARK_PREFIX;
+    public static int getTaskIndex(String command, CommandType commandType,
+            int taskCount) throws BondException {
+        String commandName = switch (commandType) {
+            case MARK -> COMMAND_MARK;
+            case UNMARK -> COMMAND_UNMARK;
             default -> throw new IllegalArgumentException("Command does not reference a task index");
         };
+        String correction = "Brief me with: " + commandName + " <mission number>.";
+        String taskNumberText = getCommandDetails(command, commandName);
+        if (taskNumberText.isEmpty()) {
+            throw new BondException(
+                    "I need a mission number for that " + commandName + " order.", correction);
+        }
 
-        int taskNumber = Integer.parseInt(getCommandArgument(command, commandPrefix));
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(taskNumberText);
+        } catch (NumberFormatException e) {
+            throw new BondException(
+                    "That mission number is not a valid whole number.", correction);
+        }
+
+        if (taskNumber < 1) {
+            throw new BondException("Mission numbers start at 1, agent.", correction);
+        }
+        if (taskCount == 0) {
+            throw new BondException(
+                    "The mission dossier is empty.",
+                    "Add a mission before trying to " + commandName + " it.");
+        }
+        if (taskNumber > taskCount) {
+            String rangeCorrection = taskCount == 1
+                    ? "Choose mission number 1."
+                    : "Choose a mission number from 1 to " + taskCount + ".";
+            throw new BondException(
+                    "Mission " + taskNumber + " is not in the dossier.", rangeCorrection);
+        }
+
         return taskNumber - 1;
     }
 
@@ -101,7 +133,7 @@ public final class Parser {
      * @throws BondException If the description is empty.
      */
     private static Todo createTodo(String command) throws BondException {
-        String description = getTaskDetails(command, COMMAND_TODO);
+        String description = getCommandDetails(command, COMMAND_TODO);
         if (description.isEmpty()) {
             throw new BondException(
                     "This todo mission has no description.", TODO_CORRECTION);
@@ -117,7 +149,7 @@ public final class Parser {
      * @throws BondException If required deadline details are missing.
      */
     private static Deadline createDeadline(String command) throws BondException {
-        String deadlineDetails = getTaskDetails(command, COMMAND_DEADLINE);
+        String deadlineDetails = getCommandDetails(command, COMMAND_DEADLINE);
         if (deadlineDetails.isEmpty()) {
             throw new BondException(
                     "This deadline mission has no description.", DEADLINE_CORRECTION);
@@ -152,7 +184,7 @@ public final class Parser {
      * @throws BondException If required event details are missing.
      */
     private static Event createEvent(String command) throws BondException {
-        String eventDetails = getTaskDetails(command, COMMAND_EVENT);
+        String eventDetails = getCommandDetails(command, COMMAND_EVENT);
         if (eventDetails.isEmpty()) {
             throw new BondException(
                     "This event mission has no description.", EVENT_CORRECTION);
@@ -199,24 +231,24 @@ public final class Parser {
     }
 
     /**
-     * Returns whether the input is a task-creation command, with or without details.
+     * Returns whether the input is a supported command, with or without details.
      *
      * @param command Command entered by the user.
-     * @param commandName Name of the task-creation command.
-     * @return True if the input begins with the complete command name.
+     * @param commandName Name of the supported command.
+     * @return {@code true} if the input begins with the complete command name.
      */
-    private static boolean isTaskCreationCommand(String command, String commandName) {
+    private static boolean isCommandWithDetails(String command, String commandName) {
         return command.equals(commandName) || command.startsWith(commandName + " ");
     }
 
     /**
-     * Returns the trimmed details following a task-creation command name.
+     * Returns the trimmed details following a command name.
      *
      * @param command Command entered by the user.
-     * @param commandName Name of the task-creation command.
+     * @param commandName Name of the command.
      * @return Trimmed text following the command name.
      */
-    private static String getTaskDetails(String command, String commandName) {
+    private static String getCommandDetails(String command, String commandName) {
         return command.substring(commandName.length()).trim();
     }
 
@@ -241,9 +273,5 @@ public final class Parser {
             markerIndex = details.indexOf(marker, markerIndex + 1);
         }
         return -1;
-    }
-
-    private static String getCommandArgument(String command, String commandPrefix) {
-        return command.substring(commandPrefix.length()).trim();
     }
 }

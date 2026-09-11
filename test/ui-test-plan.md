@@ -832,3 +832,358 @@ bye
     Bye. Hope to embark on a mission again soon!
     ____________________________________________________________
 ```
+
+## UI-9: Validate mark mission numbers
+
+**Aim:** Verify that malformed and unavailable mark selections leave mission
+state unchanged and that a later valid selection still succeeds.
+
+### Input 1
+
+```text
+mark 1
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Mission error: The mission dossier is empty.
+    Add a mission before trying to mark it.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+todo inspect safe house
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] inspect safe house
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+mark
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Mission error: I need a mission number for that mark order.
+    Brief me with: mark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+list
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect safe house
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+mark one
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Mission error: That mission number is not a valid whole number.
+    Brief me with: mark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+mark 0
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Mission error: Mission numbers start at 1, agent.
+    Brief me with: mark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+mark -3
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Mission error: Mission numbers start at 1, agent.
+    Brief me with: mark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 8
+
+```text
+mark 2
+```
+
+### Expected output 8
+
+```text
+    ____________________________________________________________
+    Mission error: Mission 2 is not in the dossier.
+    Choose mission number 1.
+    ____________________________________________________________
+```
+
+### Input 9
+
+```text
+mark 999999999999999999999999
+```
+
+### Expected output 9
+
+```text
+    ____________________________________________________________
+    Mission error: That mission number is not a valid whole number.
+    Brief me with: mark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 10
+
+```text
+mark 1
+```
+
+### Expected output 10
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [T][X] inspect safe house
+    ____________________________________________________________
+```
+
+### Input 11
+
+```text
+list
+```
+
+### Expected output 11
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][X] inspect safe house
+    ____________________________________________________________
+```
+
+### Input 12
+
+```text
+bye
+```
+
+### Expected output 12
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-10: Validate unmark mission numbers
+
+**Aim:** Verify that malformed and unavailable unmark selections preserve a
+completed mission and that a later valid selection can still clear its status.
+
+### Input 1
+
+```text
+todo decode message
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] decode message
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+mark 1
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [T][X] decode message
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+unmark
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Mission error: I need a mission number for that unmark order.
+    Brief me with: unmark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+list
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][X] decode message
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+unmark 1.5
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Mission error: That mission number is not a valid whole number.
+    Brief me with: unmark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+unmark 0
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Mission error: Mission numbers start at 1, agent.
+    Brief me with: unmark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+unmark 2
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Mission error: Mission 2 is not in the dossier.
+    Choose mission number 1.
+    ____________________________________________________________
+```
+
+### Input 8
+
+```text
+unmark 1 2
+```
+
+### Expected output 8
+
+```text
+    ____________________________________________________________
+    Mission error: That mission number is not a valid whole number.
+    Brief me with: unmark <mission number>.
+    ____________________________________________________________
+```
+
+### Input 9
+
+```text
+unmark 1
+```
+
+### Expected output 9
+
+```text
+    ____________________________________________________________
+    OK, I've marked this mission as not accomplished yet:
+      [T][ ] decode message
+    ____________________________________________________________
+```
+
+### Input 10
+
+```text
+list
+```
+
+### Expected output 10
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] decode message
+    ____________________________________________________________
+```
+
+### Input 11
+
+```text
+bye
+```
+
+### Expected output 11
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```

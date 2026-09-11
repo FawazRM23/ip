@@ -75,15 +75,31 @@ public class Bond {
         }
     }
 
-    private static void markTask(String command, TaskList taskList, Ui ui) {
-        int taskIndex = Parser.getTaskIndex(command, CommandType.MARK);
+    /**
+     * Marks the mission selected by a mark command as complete.
+     *
+     * @param command Mark command entered by the user.
+     * @param taskList Storage containing the selected mission.
+     * @param ui Console interface used to display the result.
+     * @throws BondException If the command does not select an existing mission.
+     */
+    private static void markTask(String command, TaskList taskList, Ui ui) throws BondException {
+        int taskIndex = Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize());
         Task task = taskList.getTask(taskIndex);
         task.markAsDone();
         ui.showTaskMarked(task);
     }
 
-    private static void unmarkTask(String command, TaskList taskList, Ui ui) {
-        int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK);
+    /**
+     * Marks the mission selected by an unmark command as incomplete.
+     *
+     * @param command Unmark command entered by the user.
+     * @param taskList Storage containing the selected mission.
+     * @param ui Console interface used to display the result.
+     * @throws BondException If the command does not select an existing mission.
+     */
+    private static void unmarkTask(String command, TaskList taskList, Ui ui) throws BondException {
+        int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize());
         Task task = taskList.getTask(taskIndex);
         task.markAsNotDone();
         ui.showTaskUnmarked(task);
