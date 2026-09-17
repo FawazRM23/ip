@@ -1189,11 +1189,10 @@ bye
 ```
 
 
-## UI-11: Reject missions beyond the dossier capacity
+## UI-11: Store more than 100 missions
 
-**Aim:** Verify that invalid input near the capacity boundary and attempts to
-store a 101st mission do not corrupt the full dossier, and that valid
-operations continue to work after each error.
+**Aim:** Verify that the mission collection grows beyond 100 entries and that
+valid mark and unmark operations continue to work across that boundary.
 
 ### Input 1
 
@@ -2820,8 +2819,9 @@ todo overflow mission
 
 ```text
     ____________________________________________________________
-    Mission error: The mission dossier already holds 100 missions.
-    Start a new session before adding another mission.
+    Got it. I've added this mission:
+      [T][ ] overflow mission
+    Now you have 101 missions in the list.
     ____________________________________________________________
 ```
 
@@ -2850,8 +2850,8 @@ mark 101
 
 ```text
     ____________________________________________________________
-    Mission error: Mission 101 is not in the dossier.
-    Choose a mission number from 1 to 100.
+    Nice work, agent! Another mission accomplished!:
+      [T][X] overflow mission
     ____________________________________________________________
 ```
 
