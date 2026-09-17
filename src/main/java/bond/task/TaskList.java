@@ -48,6 +48,18 @@ public class TaskList {
     }
 
     /**
+     * Removes the last task to roll back an addition that could not be saved.
+     */
+    public void removeLastTask() {
+        if (size == 0) {
+            return;
+        }
+
+        size--;
+        tasks[size] = null;
+    }
+
+    /**
      * Returns the number of stored tasks.
      *
      * @return Number of tasks in the list.

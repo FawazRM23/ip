@@ -3161,3 +3161,356 @@ bye
     Bye. Hope to embark on a mission again soon!
     ____________________________________________________________
 ```
+
+## UI-14: Preserve storage-format characters in task fields
+
+**Aim:** Verify that pipes and backslashes in user-entered task fields survive
+saving and loading without being mistaken for storage delimiters.
+
+Run both sessions in the same otherwise-clean temporary working directory.
+
+### Session 1, input 1
+
+```text
+todo inspect A | B \ archive
+```
+
+### Session 1, expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] inspect A | B \ archive
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Expected data file 1
+
+```text
+T | 0 | inspect A \| B \\ archive
+```
+
+### Session 1, input 2
+
+```text
+bye
+```
+
+### Session 1, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Session 2, input 1
+
+```text
+list
+```
+
+### Session 2, expected output 1
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect A | B \ archive
+    ____________________________________________________________
+```
+
+### Session 2, input 2
+
+```text
+bye
+```
+
+### Session 2, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-15: Reject malformed mission archives
+
+**Aim:** Verify that each malformed storage record produces a specific recovery
+message instead of a Java exception or partially loaded mission list.
+
+For each subcase, copy the named fixture to `data/bond.txt` in a separate clean
+temporary working directory, launch Bond, and provide no console input. Bond
+must print the shared startup output, print the indicated response, and exit.
+
+### Subcase A initial data
+
+Copy `test/fixtures/storage/invalid-status.txt`.
+
+### Subcase A input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase A expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the completion status must be 0 or 1.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase B initial data
+
+Copy `test/fixtures/storage/unknown-type.txt`.
+
+### Subcase B input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase B expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the task type 'Z' is unknown.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase C initial data
+
+Copy `test/fixtures/storage/wrong-field-count.txt`.
+
+### Subcase C input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase C expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the number of fields does not match the task type.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase D initial data
+
+Copy `test/fixtures/storage/extra-field.txt`.
+
+### Subcase D input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase D expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the number of fields does not match the task type.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase E initial data
+
+Copy `test/fixtures/storage/empty-field.txt`.
+
+### Subcase E input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase E expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: a required task field is empty.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase F initial data
+
+Copy `test/fixtures/storage/blank-line.txt`.
+
+### Subcase F input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase F expected output after startup
+
+```text
+    Mission error: Mission archive line 2 is invalid: the line is empty.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+## UI-16: Reject an invalid archive path
+
+**Aim:** Verify that a directory at the configured data-file path produces a
+clear read error instead of a Java exception.
+
+Before launch, create the directory `data/bond.txt` in an otherwise-clean
+temporary working directory.
+
+### Input
+
+None; Bond exits after detecting the startup error.
+
+### Expected output after startup
+
+```text
+    Mission error: I couldn't read the mission archive.
+    Check that ./data/bond.txt is a readable file, then restart Bond.
+    ____________________________________________________________
+```
+
+## UI-17: Roll back a mission when saving fails
+
+**Aim:** Verify that a failed write produces a recoverable error and does not
+leave the unsaved mission in memory.
+
+Start Bond in a clean temporary working directory. After the shared startup
+output appears, create the directory `data/bond.txt` before sending input 1.
+
+### Input 1
+
+```text
+todo secure archive
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+list
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+bye
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-18: Roll back status changes when saving fails
+
+**Aim:** Verify that failed mark and unmark writes restore the completion states
+that were loaded from disk.
+
+Copy `test/fixtures/storage/rollback-statuses.txt` to `data/bond.txt`, then
+launch Bond. After the shared startup output appears, move the data file aside
+and create the directory `data/bond.txt` before sending input 1.
+
+### Input 1
+
+```text
+mark 1
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+list
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect archive
+    2.[T][X] secure archive
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+unmark 2
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+list
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect archive
+    2.[T][X] secure archive
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+bye
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-19: Reject an archive beyond the mission capacity
+
+**Aim:** Verify that loading a 101st mission produces a controlled archive
+error instead of overflowing the in-memory task list.
+
+Copy `test/fixtures/storage/too-many-tasks.txt` to `data/bond.txt` in a clean
+temporary working directory, launch Bond, and provide no console input.
+
+### Input
+
+None; Bond exits after detecting the startup error.
+
+### Expected output after startup
+
+```text
+    Mission error: Mission archive line 101 is invalid: the archive contains too many missions.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```

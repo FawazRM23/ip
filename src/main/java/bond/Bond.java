@@ -1,8 +1,7 @@
 package bond;
 
-import java.io.IOException;
-
 import bond.exception.BondException;
+import bond.exception.StorageException;
 import bond.parser.CommandType;
 import bond.parser.Parser;
 import bond.storage.Storage;
@@ -25,18 +24,21 @@ public class Bond {
      * Starts Bond and processes user commands until the user enters "bye".
      *
      * @param args Command-line arguments, which are not used.
-     * @throws IOException If task data cannot be read from or written to the hard disk.
-     * @throws BondException If the saved task list exceeds the supported capacity.
      */
-    public static void main(String[] args) throws IOException, BondException {
+    public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage(DATA_FILE_PATH);
-        TaskList taskList = storage.loadTasks();
-
         ui.showWelcomeMessage();
-        processCommands(ui, taskList, storage);
 
-        ui.close();
+        try {
+            TaskList taskList = storage.loadTasks();
+            processCommands(ui, taskList, storage);
+        } catch (StorageException e) {
+            ui.showError(e.getMessage(), e.getCorrection());
+            ui.showDivider();
+        } finally {
+            ui.close();
+        }
     }
 
     /**
@@ -45,10 +47,8 @@ public class Bond {
      * @param ui Console interface used for input and output.
      * @param taskList Storage for tasks created during the session.
      * @param storage File storage used to save task-list changes.
-     * @throws IOException If task data cannot be written to the hard disk.
      */
-    private static void processCommands(Ui ui, TaskList taskList, Storage storage)
-            throws IOException {
+    private static void processCommands(Ui ui, TaskList taskList, Storage storage) {
         while (true) {
             String command = ui.readCommand();
             CommandType commandType = Parser.getCommandType(command);
@@ -78,10 +78,9 @@ public class Bond {
      * @param storage File storage used to save task-list changes.
      * @param ui Console interface used to display results.
      * @throws BondException If the command cannot be executed because of invalid user input.
-     * @throws IOException If task data cannot be written to the hard disk.
      */
     private static void executeCommand(String command, CommandType commandType,
-            TaskList taskList, Storage storage, Ui ui) throws BondException, IOException {
+            TaskList taskList, Storage storage, Ui ui) throws BondException {
         switch (commandType) {
             case LIST -> ui.showTaskList(taskList);
             case MARK -> markTask(command, taskList, storage, ui);
@@ -102,14 +101,19 @@ public class Bond {
      * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      * @throws BondException If the command does not select an existing mission.
-     * @throws IOException If task data cannot be written to the hard disk.
      */
     private static void markTask(String command, TaskList taskList, Storage storage, Ui ui)
-            throws BondException, IOException {
+            throws BondException {
         int taskIndex = Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize());
         Task task = taskList.getTask(taskIndex);
+        boolean wasDone = task.isDone();
         task.markAsDone();
-        storage.saveTasks(taskList);
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            restoreTaskStatus(task, wasDone);
+            throw e;
+        }
         ui.showTaskMarked(task);
     }
 
@@ -121,14 +125,19 @@ public class Bond {
      * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      * @throws BondException If the command does not select an existing mission.
-     * @throws IOException If task data cannot be written to the hard disk.
      */
     private static void unmarkTask(String command, TaskList taskList, Storage storage, Ui ui)
-            throws BondException, IOException {
+            throws BondException {
         int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize());
         Task task = taskList.getTask(taskIndex);
+        boolean wasDone = task.isDone();
         task.markAsNotDone();
-        storage.saveTasks(taskList);
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            restoreTaskStatus(task, wasDone);
+            throw e;
+        }
         ui.showTaskUnmarked(task);
     }
 
@@ -140,12 +149,30 @@ public class Bond {
      * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      * @throws BondException If the mission dossier has reached its capacity.
-     * @throws IOException If task data cannot be written to the hard disk.
      */
     private static void addTypedTask(Task task, TaskList taskList, Storage storage, Ui ui)
-            throws BondException, IOException {
+            throws BondException {
         taskList.addTask(task);
-        storage.saveTasks(taskList);
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            taskList.removeLastTask();
+            throw e;
+        }
         ui.showTaskAdded(task, taskList.getSize());
+    }
+
+    /**
+     * Restores a task's completion status after a failed save.
+     *
+     * @param task Task whose status must be restored.
+     * @param wasDone Completion status before the attempted change.
+     */
+    private static void restoreTaskStatus(Task task, boolean wasDone) {
+        if (wasDone) {
+            task.markAsDone();
+        } else {
+            task.markAsNotDone();
+        }
     }
 }
