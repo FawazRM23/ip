@@ -42,6 +42,16 @@ public class Task {
     }
 
     /**
+     * Returns the task data shared by every task type for file storage.
+     *
+     * @return Completion value and description separated by file delimiters.
+     */
+    public String toDataString() {
+        String completionValue = isDone ? "1" : "0";
+        return completionValue + " | " + description;
+    }
+
+    /**
      * Returns the task's status icon followed by its description.
      *
      * @return Display form of this task.

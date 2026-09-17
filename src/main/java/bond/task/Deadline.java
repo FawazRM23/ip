@@ -19,6 +19,16 @@ public class Deadline extends Task {
     }
 
     /**
+     * Returns this deadline task in the file storage format.
+     *
+     * @return Storage form of this deadline task.
+     */
+    @Override
+    public String toDataString() {
+        return "D | " + super.toDataString() + " | " + by;
+    }
+
+    /**
      * Returns the task type, status icon, description, and deadline.
      *
      * @return Display form of this deadline task.

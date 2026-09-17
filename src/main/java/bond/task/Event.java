@@ -22,6 +22,16 @@ public class Event extends Task {
     }
 
     /**
+     * Returns this event task in the file storage format.
+     *
+     * @return Storage form of this event task.
+     */
+    @Override
+    public String toDataString() {
+        return "E | " + super.toDataString() + " | " + from + " | " + to;
+    }
+
+    /**
      * Returns the task type, status icon, description, and event period.
      *
      * @return Display form of this event task.

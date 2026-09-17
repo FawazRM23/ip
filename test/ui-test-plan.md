@@ -22,6 +22,9 @@ cases in document order and stop at the first mismatch.
 - Output comparison: Compare exactly, except that CRLF and LF line endings are
   equivalent and terminal-generated input echo is ignored. Spaces, blank lines,
   case, punctuation, and program-generated output remain significant.
+- Data-file comparison: When a case specifies expected file contents, read
+  `data/bond.txt` immediately after the paired response. Treat CRLF and LF as
+  equivalent and require the file to end with a line ending.
 
 ## Expected startup output
 
@@ -2882,4 +2885,146 @@ bye
     ____________________________________________________________
     Bye. Hope to embark on a mission again soon!
     ____________________________________________________________
+```
+
+## UI-12: Save every task-list change
+
+**Aim:** Verify that additions and completion-status changes rewrite the data
+file immediately using the storage format for each task type.
+
+### Input 1
+
+```text
+todo read book
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Expected data file 1
+
+```text
+T | 0 | read book
+```
+
+### Input 2
+
+```text
+deadline return book /by June 6th
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] return book (by: June 6th)
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Expected data file 2
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+```
+
+### Input 3
+
+```text
+event project meeting /from Aug 6th 2pm /to 4pm
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    Now you have 3 missions in the list.
+    ____________________________________________________________
+```
+
+### Expected data file 3
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+### Input 4
+
+```text
+mark 2
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [D][X] return book (by: June 6th)
+    ____________________________________________________________
+```
+
+### Expected data file 4
+
+```text
+T | 0 | read book
+D | 1 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+### Input 5
+
+```text
+unmark 2
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    OK, I've marked this mission as not accomplished yet:
+      [D][ ] return book (by: June 6th)
+    ____________________________________________________________
+```
+
+### Expected data file 5
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+### Input 6
+
+```text
+bye
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Expected data file 6
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
 ```
