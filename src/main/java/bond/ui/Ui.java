@@ -94,6 +94,19 @@ public class Ui {
     }
 
     /**
+     * Displays confirmation that a task was deleted.
+     *
+     * @param task Task that was deleted.
+     * @param taskCount Number of tasks after the deletion.
+     */
+    public void showTaskDeleted(Task task, int taskCount) {
+        String missionNoun = taskCount == 1 ? "mission" : "missions";
+        System.out.println("    Noted. I've removed this mission:");
+        System.out.println("      " + task);
+        System.out.println("    Now you have " + taskCount + " " + missionNoun + " in the list.");
+    }
+
+    /**
      * Displays confirmation that a typed task was added.
      *
      * @param task Task that was added.

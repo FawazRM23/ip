@@ -202,7 +202,7 @@ blah
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, or bye.
+    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -248,7 +248,7 @@ list now
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, or bye.
+    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -314,7 +314,7 @@ todo inspect equipment
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, or bye.
+    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -344,7 +344,7 @@ LIST
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, or bye.
+    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -374,7 +374,7 @@ list
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, or bye.
+    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -2877,6 +2877,120 @@ bye
 ```
 
 ### Expected output 106
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-12: Delete a mission
+
+**Aim:** Verify that deleting a selected mission reports the removed mission,
+reduces the mission count, and closes the gap in the numbered list.
+
+### Input 1
+
+```text
+todo read book
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+deadline return book /by June 6th
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] return book (by: June 6th)
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+event project meeting /from Aug 6th 2pm /to 4pm
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    Now you have 3 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+mark 3
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+delete 3
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Noted. I've removed this mission:
+      [E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 6
+
+```text
+list
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] read book
+    2.[D][ ] return book (by: June 6th)
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+bye
+```
+
+### Expected output 7
 
 ```text
     ____________________________________________________________

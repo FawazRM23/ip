@@ -15,6 +15,7 @@ public final class Parser {
     private static final String COMMAND_LIST = "list";
     private static final String COMMAND_MARK = "mark";
     private static final String COMMAND_UNMARK = "unmark";
+    private static final String COMMAND_DELETE = "delete";
     private static final String COMMAND_TODO = "todo";
     private static final String COMMAND_DEADLINE = "deadline";
     private static final String COMMAND_EVENT = "event";
@@ -52,6 +53,9 @@ public final class Parser {
         if (isCommandWithDetails(command, COMMAND_UNMARK)) {
             return CommandType.UNMARK;
         }
+        if (isCommandWithDetails(command, COMMAND_DELETE)) {
+            return CommandType.DELETE;
+        }
         if (isCommandWithDetails(command, COMMAND_TODO)) {
             return CommandType.TODO;
         }
@@ -65,7 +69,7 @@ public final class Parser {
     }
 
     /**
-     * Returns the zero-based task index specified by a mark or unmark command.
+     * Returns the zero-based task index specified by a task-reference command.
      *
      * @param command Command entered by the user.
      * @param commandType Type of the command.
@@ -78,6 +82,7 @@ public final class Parser {
         String commandName = switch (commandType) {
             case MARK -> COMMAND_MARK;
             case UNMARK -> COMMAND_UNMARK;
+            case DELETE -> COMMAND_DELETE;
             default -> throw new IllegalArgumentException("Command does not reference a task index");
         };
         String correction = "Brief me with: " + commandName + " <mission number>.";

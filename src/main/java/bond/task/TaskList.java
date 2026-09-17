@@ -38,6 +38,22 @@ public class TaskList {
     }
 
     /**
+     * Removes and returns the task at the specified zero-based index.
+     *
+     * @param index Zero-based position of the task to remove.
+     * @return Task removed from the list.
+     */
+    public Task deleteTask(int index) {
+        Task deletedTask = tasks[index];
+        for (int i = index; i < size - 1; i++) {
+            tasks[i] = tasks[i + 1];
+        }
+        size--;
+        tasks[size] = null;
+        return deletedTask;
+    }
+
+    /**
      * Returns the task at the specified zero-based index.
      *
      * @param index Zero-based position of the task.
