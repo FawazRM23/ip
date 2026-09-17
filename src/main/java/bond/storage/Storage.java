@@ -39,11 +39,15 @@ public class Storage {
     /**
      * Creates storage that writes to the specified file path.
      *
-     * @param filePath Relative or absolute path of the task data file.
+     * @param filePath Relative path of the task data file.
      */
-    public Storage(String filePath) {
-        this.filePathText = filePath;
-        this.filePath = Path.of(filePath);
+    public Storage(Path filePath) {
+        if (filePath.isAbsolute()) {
+            throw new IllegalArgumentException("Task data file path must be relative");
+        }
+
+        this.filePathText = "./" + filePath.toString().replace('\\', '/');
+        this.filePath = filePath;
     }
 
     /**
@@ -88,8 +92,10 @@ public class Storage {
      * @throws StorageException If the directory or data file cannot be written.
      */
     public void saveTasks(TaskList taskList) throws StorageException {
-        Path absoluteFilePath = filePath.toAbsolutePath();
-        Path parentDirectory = absoluteFilePath.getParent();
+        Path parentDirectory = filePath.getParent();
+        if (parentDirectory == null) {
+            parentDirectory = Path.of(".");
+        }
         Path temporaryFilePath = null;
 
         try {
@@ -103,7 +109,7 @@ public class Storage {
                 }
             }
 
-            replaceDataFile(temporaryFilePath, absoluteFilePath);
+            replaceDataFile(temporaryFilePath, filePath);
             temporaryFilePath = null;
         } catch (IOException e) {
             throw new StorageException(
@@ -229,21 +235,21 @@ public class Storage {
      * Replaces the data file atomically when the file system supports it.
      *
      * @param temporaryFilePath Fully written temporary file.
-     * @param absoluteFilePath Destination data file.
+     * @param dataFilePath Destination data file.
      * @throws IOException If the data file cannot be replaced.
      */
-    private void replaceDataFile(Path temporaryFilePath, Path absoluteFilePath)
+    private void replaceDataFile(Path temporaryFilePath, Path dataFilePath)
             throws IOException {
         try {
             Files.move(
                     temporaryFilePath,
-                    absoluteFilePath,
+                    dataFilePath,
                     StandardCopyOption.ATOMIC_MOVE,
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (AtomicMoveNotSupportedException e) {
             Files.move(
                     temporaryFilePath,
-                    absoluteFilePath,
+                    dataFilePath,
                     StandardCopyOption.REPLACE_EXISTING);
         }
     }

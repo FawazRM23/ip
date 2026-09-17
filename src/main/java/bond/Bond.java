@@ -1,5 +1,7 @@
 package bond;
 
+import java.nio.file.Path;
+
 import bond.exception.BondException;
 import bond.exception.StorageException;
 import bond.parser.CommandType;
@@ -14,7 +16,7 @@ import bond.ui.Ui;
  */
 public class Bond {
 
-    private static final String DATA_FILE_PATH = "./data/bond.txt";
+    private static final Path DATA_FILE_PATH = Path.of("data", "bond.txt");
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "I don't recognize that command.";
     private static final String UNKNOWN_COMMAND_CORRECTION =
