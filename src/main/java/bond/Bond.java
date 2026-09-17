@@ -15,7 +15,7 @@ public class Bond {
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "I don't recognize that command.";
     private static final String UNKNOWN_COMMAND_CORRECTION =
-            "Try: todo, deadline, event, list, mark, unmark, or bye.";
+            "Try: todo, deadline, event, list, mark, unmark, delete, or bye.";
 
     /**
      * Starts Bond and processes user commands until the user enters "bye".
@@ -74,6 +74,7 @@ public class Bond {
             case LIST -> ui.showTaskList(taskList);
             case MARK -> markTask(command, taskList, ui);
             case UNMARK -> unmarkTask(command, taskList, ui);
+            case DELETE -> deleteTask(command, taskList, ui);
             case TODO, DEADLINE, EVENT ->
                     addTypedTask(Parser.createTask(command, commandType), taskList, ui);
             case UNKNOWN -> throw new BondException(
@@ -113,14 +114,27 @@ public class Bond {
     }
 
     /**
+     * Deletes the mission selected by a delete command.
+     *
+     * @param command Delete command entered by the user.
+     * @param taskList Storage containing the selected mission.
+     * @param ui Console interface used to display the result.
+     * @throws BondException If the command does not select an existing mission.
+     */
+    private static void deleteTask(String command, TaskList taskList, Ui ui) throws BondException {
+        int taskIndex = Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize());
+        Task deletedTask = taskList.deleteTask(taskIndex);
+        ui.showTaskDeleted(deletedTask, taskList.getSize());
+    }
+
+    /**
      * Adds a parsed mission to storage and reports the updated mission count.
      *
      * @param task Mission to store.
      * @param taskList Storage for missions created during the session.
      * @param ui Console interface used to display the result.
-     * @throws BondException If the mission dossier has reached its capacity.
      */
-    private static void addTypedTask(Task task, TaskList taskList, Ui ui) throws BondException {
+    private static void addTypedTask(Task task, TaskList taskList, Ui ui) {
         taskList.addTask(task);
         ui.showTaskAdded(task, taskList.getSize());
     }

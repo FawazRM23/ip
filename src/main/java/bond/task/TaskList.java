@@ -1,40 +1,38 @@
 package bond.task;
 
-import bond.exception.BondException;
+import java.util.ArrayList;
 
 /**
  * Stores the tasks created during a Bond session.
  */
 public class TaskList {
 
-    private static final int MAX_TASKS = 100;
-
-    private final Task[] tasks;
-    private int size;
+    private final ArrayList<Task> tasks;
 
     /**
      * Creates an empty task list.
      */
     public TaskList() {
-        tasks = new Task[MAX_TASKS];
-        size = 0;
+        tasks = new ArrayList<>();
     }
 
     /**
      * Adds a task to the end of the list.
      *
      * @param task Task to add.
-     * @throws BondException If the mission dossier has reached its capacity.
      */
-    public void addTask(Task task) throws BondException {
-        if (size >= MAX_TASKS) {
-            throw new BondException(
-                    "The mission dossier already holds " + MAX_TASKS + " missions.",
-                    "Start a new session before adding another mission.");
-        }
+    public void addTask(Task task) {
+        tasks.add(task);
+    }
 
-        tasks[size] = task;
-        size++;
+    /**
+     * Removes and returns the task at the specified zero-based index.
+     *
+     * @param index Zero-based position of the task to remove.
+     * @return Task removed from the list.
+     */
+    public Task deleteTask(int index) {
+        return tasks.remove(index);
     }
 
     /**
@@ -44,7 +42,7 @@ public class TaskList {
      * @return Task at the specified index.
      */
     public Task getTask(int index) {
-        return tasks[index];
+        return tasks.get(index);
     }
 
     /**
@@ -53,6 +51,6 @@ public class TaskList {
      * @return Number of tasks in the list.
      */
     public int getSize() {
-        return size;
+        return tasks.size();
     }
 }
