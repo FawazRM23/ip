@@ -25,12 +25,13 @@ public class Bond {
      * Starts Bond and processes user commands until the user enters "bye".
      *
      * @param args Command-line arguments, which are not used.
-     * @throws IOException If task data cannot be written to the hard disk.
+     * @throws IOException If task data cannot be read from or written to the hard disk.
+     * @throws BondException If the saved task list exceeds the supported capacity.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, BondException {
         Ui ui = new Ui();
-        TaskList taskList = new TaskList();
         Storage storage = new Storage(DATA_FILE_PATH);
+        TaskList taskList = storage.loadTasks();
 
         ui.showWelcomeMessage();
         processCommands(ui, taskList, storage);

@@ -19,6 +19,8 @@ cases in document order and stop at the first mismatch.
   ```
 
 - Session isolation: Start a fresh process for every test case.
+- Data isolation: Run each case in a clean temporary working directory so that
+  `./data/bond.txt` starts absent, except when a case specifies initial data.
 - Output comparison: Compare exactly, except that CRLF and LF line endings are
   equivalent and terminal-generated input echo is ignored. Spaces, blank lines,
   case, punctuation, and program-generated output remain significant.
@@ -3027,4 +3029,135 @@ bye
 T | 0 | read book
 D | 0 | return book | June 6th
 E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+## UI-13: Load saved tasks at startup
+
+**Aim:** Verify that Bond restores every task type and its completion status
+from the data file when a new process starts.
+
+Run both sessions in the same otherwise-clean temporary working directory so
+that the second process reads the file written by the first process.
+
+### Session 1, input 1
+
+```text
+todo read book
+```
+
+### Session 1, expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Session 1, input 2
+
+```text
+deadline return book /by June 6th
+```
+
+### Session 1, expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] return book (by: June 6th)
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Session 1, input 3
+
+```text
+event project meeting /from Aug 6th 2pm /to 4pm
+```
+
+### Session 1, expected output 3
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    Now you have 3 missions in the list.
+    ____________________________________________________________
+```
+
+### Session 1, input 4
+
+```text
+mark 1
+```
+
+### Session 1, expected output 4
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [T][X] read book
+    ____________________________________________________________
+```
+
+### Session 1, input 5
+
+```text
+mark 3
+```
+
+### Session 1, expected output 5
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+```
+
+### Session 1, input 6
+
+```text
+bye
+```
+
+### Session 1, expected output 6
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Session 2, input 1
+
+```text
+list
+```
+
+### Session 2, expected output 1
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][X] read book
+    2.[D][ ] return book (by: June 6th)
+    3.[E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+```
+
+### Session 2, input 2
+
+```text
+bye
+```
+
+### Session 2, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
 ```
