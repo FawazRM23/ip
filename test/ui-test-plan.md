@@ -19,9 +19,14 @@ cases in document order and stop at the first mismatch.
   ```
 
 - Session isolation: Start a fresh process for every test case.
+- Data isolation: Run each case in a clean temporary working directory so that
+  `./data/bond.txt` starts absent, except when a case specifies initial data.
 - Output comparison: Compare exactly, except that CRLF and LF line endings are
   equivalent and terminal-generated input echo is ignored. Spaces, blank lines,
   case, punctuation, and program-generated output remain significant.
+- Data-file comparison: When a case specifies expected file contents, read
+  `data/bond.txt` immediately after the paired response. Treat CRLF and LF as
+  equivalent and require the file to end with a line ending.
 
 ## Expected startup output
 
@@ -2884,10 +2889,10 @@ bye
     ____________________________________________________________
 ```
 
-## UI-12: Delete a mission
+## UI-12: Save every task-list change
 
-**Aim:** Verify that deleting a selected mission reports the removed mission,
-reduces the mission count, and closes the gap in the numbered list.
+**Aim:** Verify that additions and completion-status changes rewrite the data
+file immediately using the storage format for each task type.
 
 ### Input 1
 
@@ -2903,6 +2908,12 @@ todo read book
       [T][ ] read book
     Now you have 1 mission in the list.
     ____________________________________________________________
+```
+
+### Expected data file 1
+
+```text
+T | 0 | read book
 ```
 
 ### Input 2
@@ -2921,6 +2932,13 @@ deadline return book /by June 6th
     ____________________________________________________________
 ```
 
+### Expected data file 2
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+```
+
 ### Input 3
 
 ```text
@@ -2937,13 +2955,160 @@ event project meeting /from Aug 6th 2pm /to 4pm
     ____________________________________________________________
 ```
 
+### Expected data file 3
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
 ### Input 4
+
+```text
+mark 2
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [D][X] return book (by: June 6th)
+    ____________________________________________________________
+```
+
+### Expected data file 4
+
+```text
+T | 0 | read book
+D | 1 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+### Input 5
+
+```text
+unmark 2
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    OK, I've marked this mission as not accomplished yet:
+      [D][ ] return book (by: June 6th)
+    ____________________________________________________________
+```
+
+### Expected data file 5
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+### Input 6
+
+```text
+bye
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Expected data file 6
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+E | 0 | project meeting | Aug 6th 2pm | 4pm
+```
+
+## UI-13: Load saved tasks at startup
+
+**Aim:** Verify that Bond restores every task type and its completion status
+from the data file when a new process starts.
+
+Run both sessions in the same otherwise-clean temporary working directory so
+that the second process reads the file written by the first process.
+
+### Session 1, input 1
+
+```text
+todo read book
+```
+
+### Session 1, expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Session 1, input 2
+
+```text
+deadline return book /by June 6th
+```
+
+### Session 1, expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] return book (by: June 6th)
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Session 1, input 3
+
+```text
+event project meeting /from Aug 6th 2pm /to 4pm
+```
+
+### Session 1, expected output 3
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    Now you have 3 missions in the list.
+    ____________________________________________________________
+```
+
+### Session 1, input 4
+
+```text
+mark 1
+```
+
+### Session 1, expected output 4
+
+```text
+    ____________________________________________________________
+    Nice work, agent! Another mission accomplished!:
+      [T][X] read book
+    ____________________________________________________________
+```
+
+### Session 1, input 5
 
 ```text
 mark 3
 ```
 
-### Expected output 4
+### Session 1, expected output 5
 
 ```text
     ____________________________________________________________
@@ -2952,45 +3117,563 @@ mark 3
     ____________________________________________________________
 ```
 
+### Session 1, input 6
+
+```text
+bye
+```
+
+### Session 1, expected output 6
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Session 2, input 1
+
+```text
+list
+```
+
+### Session 2, expected output 1
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][X] read book
+    2.[D][ ] return book (by: June 6th)
+    3.[E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+    ____________________________________________________________
+```
+
+### Session 2, input 2
+
+```text
+bye
+```
+
+### Session 2, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-14: Preserve storage-format characters in task fields
+
+**Aim:** Verify that pipes and backslashes in user-entered task fields survive
+saving and loading without being mistaken for storage delimiters.
+
+Run both sessions in the same otherwise-clean temporary working directory.
+
+### Session 1, input 1
+
+```text
+todo inspect A | B \ archive
+```
+
+### Session 1, expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] inspect A | B \ archive
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Expected data file 1
+
+```text
+T | 0 | inspect A \| B \\ archive
+```
+
+### Session 1, input 2
+
+```text
+bye
+```
+
+### Session 1, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Session 2, input 1
+
+```text
+list
+```
+
+### Session 2, expected output 1
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect A | B \ archive
+    ____________________________________________________________
+```
+
+### Session 2, input 2
+
+```text
+bye
+```
+
+### Session 2, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-15: Reject malformed mission archives
+
+**Aim:** Verify that each malformed storage record produces a specific recovery
+message instead of a Java exception or partially loaded mission list.
+
+For each subcase, copy the named fixture to `data/bond.txt` in a separate clean
+temporary working directory, launch Bond, and provide no console input. Bond
+must print the shared startup output, print the indicated response, and exit.
+
+### Subcase A initial data
+
+Copy `test/fixtures/storage/invalid-status.txt`.
+
+### Subcase A input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase A expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the completion status must be 0 or 1.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase B initial data
+
+Copy `test/fixtures/storage/unknown-type.txt`.
+
+### Subcase B input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase B expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the task type 'Z' is unknown.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase C initial data
+
+Copy `test/fixtures/storage/wrong-field-count.txt`.
+
+### Subcase C input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase C expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the number of fields does not match the task type.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase D initial data
+
+Copy `test/fixtures/storage/extra-field.txt`.
+
+### Subcase D input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase D expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the number of fields does not match the task type.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase E initial data
+
+Copy `test/fixtures/storage/empty-field.txt`.
+
+### Subcase E input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase E expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: a required task field is empty.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+### Subcase F initial data
+
+Copy `test/fixtures/storage/blank-line.txt`.
+
+### Subcase F input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase F expected output after startup
+
+```text
+    Mission error: Mission archive line 2 is invalid: the line is empty.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
+## UI-16: Reject an invalid archive path
+
+**Aim:** Verify that a directory at the configured data-file path produces a
+clear read error instead of a Java exception.
+
+Before launch, create the directory `data/bond.txt` in an otherwise-clean
+temporary working directory.
+
+### Input
+
+None; Bond exits after detecting the startup error.
+
+### Expected output after startup
+
+```text
+    Mission error: I couldn't read the mission archive.
+    Check that ./data/bond.txt is a readable file, then restart Bond.
+    ____________________________________________________________
+```
+
+## UI-17: Roll back a mission when saving fails
+
+**Aim:** Verify that a failed write produces a recoverable error and does not
+leave the unsaved mission in memory.
+
+Start Bond in a clean temporary working directory. After the shared startup
+output appears, create the directory `data/bond.txt` before sending input 1.
+
+### Input 1
+
+```text
+todo secure archive
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+list
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+bye
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-18: Roll back status changes when saving fails
+
+**Aim:** Verify that failed mark and unmark writes restore the completion states
+that were loaded from disk.
+
+Copy `test/fixtures/storage/rollback-statuses.txt` to `data/bond.txt`, then
+launch Bond. After the shared startup output appears, move the data file aside
+and create the directory `data/bond.txt` before sending input 1.
+
+### Input 1
+
+```text
+mark 1
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+list
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect archive
+    2.[T][X] secure archive
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+unmark 2
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+list
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect archive
+    2.[T][X] secure archive
+    ____________________________________________________________
+```
+
 ### Input 5
 
 ```text
-delete 3
+bye
 ```
 
 ### Expected output 5
 
 ```text
     ____________________________________________________________
-    Noted. I've removed this mission:
-      [E][X] project meeting (from: Aug 6th 2pm to: 4pm)
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-19: Persist a deleted mission
+
+**Aim:** Verify that deleting a mission rewrites the data file, closes the gap
+in the numbered list, and remains deleted after Bond restarts.
+
+Run both sessions in the same otherwise-clean temporary working directory.
+
+### Session 1, input 1
+
+```text
+todo read book
+```
+
+### Session 1, expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Session 1, expected data file 1
+
+```text
+T | 0 | read book
+```
+
+### Session 1, input 2
+
+```text
+deadline return book /by June 6th
+```
+
+### Session 1, expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] return book (by: June 6th)
     Now you have 2 missions in the list.
     ____________________________________________________________
 ```
 
-### Input 6
+### Session 1, expected data file 2
+
+```text
+T | 0 | read book
+D | 0 | return book | June 6th
+```
+
+### Session 1, input 3
+
+```text
+delete 1
+```
+
+### Session 1, expected output 3
+
+```text
+    ____________________________________________________________
+    Noted. I've removed this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Session 1, expected data file 3
+
+```text
+D | 0 | return book | June 6th
+```
+
+### Session 1, input 4
 
 ```text
 list
 ```
 
-### Expected output 6
+### Session 1, expected output 4
 
 ```text
     ____________________________________________________________
     Here are the missions in your list:
-    1.[T][ ] read book
-    2.[D][ ] return book (by: June 6th)
+    1.[D][ ] return book (by: June 6th)
     ____________________________________________________________
 ```
 
-### Input 7
+### Session 1, input 5
 
 ```text
 bye
 ```
 
-### Expected output 7
+### Session 1, expected output 5
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+### Session 2, input 1
+
+```text
+list
+```
+
+### Session 2, expected output 1
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[D][ ] return book (by: June 6th)
+    ____________________________________________________________
+```
+
+### Session 2, input 2
+
+```text
+bye
+```
+
+### Session 2, expected output 2
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-20: Roll back a deletion when saving fails
+
+**Aim:** Verify that a failed delete write restores the removed mission at its
+original position and reports a recoverable storage error.
+
+Copy `test/fixtures/storage/rollback-statuses.txt` to `data/bond.txt`, then
+launch Bond. After the shared startup output appears, move the data file aside
+and create the directory `data/bond.txt` before sending input 1.
+
+### Input 1
+
+```text
+delete 1
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Mission error: I couldn't save the mission archive.
+    Check that ./data/bond.txt is writable, then try again.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+list
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] inspect archive
+    2.[T][X] secure archive
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+bye
+```
+
+### Expected output 3
 
 ```text
     ____________________________________________________________

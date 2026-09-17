@@ -15,6 +15,16 @@ public class Todo extends Task {
     }
 
     /**
+     * Returns this to-do task in the file storage format.
+     *
+     * @return Storage form of this to-do task.
+     */
+    @Override
+    public String toDataString() {
+        return "T" + DATA_FIELD_DELIMITER + super.toDataString();
+    }
+
+    /**
      * Returns the task type, status icon, and description.
      *
      * @return Display form of this to-do task.

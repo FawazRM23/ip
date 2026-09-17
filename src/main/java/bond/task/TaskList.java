@@ -36,6 +36,16 @@ public class TaskList {
     }
 
     /**
+     * Restores a task at its previous index after a deletion could not be saved.
+     *
+     * @param index Zero-based position at which to restore the task.
+     * @param task Task to restore.
+     */
+    public void restoreTask(int index, Task task) {
+        tasks.add(index, task);
+    }
+
+    /**
      * Returns the task at the specified zero-based index.
      *
      * @param index Zero-based position of the task.
@@ -43,6 +53,17 @@ public class TaskList {
      */
     public Task getTask(int index) {
         return tasks.get(index);
+    }
+
+    /**
+     * Removes the last task to roll back an addition that could not be saved.
+     */
+    public void removeLastTask() {
+        if (tasks.isEmpty()) {
+            return;
+        }
+
+        tasks.remove(tasks.size() - 1);
     }
 
     /**

@@ -5,6 +5,8 @@ package bond.task;
  */
 public class Task {
 
+    protected static final String DATA_FIELD_DELIMITER = " | ";
+
     private final String description;
     private boolean isDone;
 
@@ -39,6 +41,35 @@ public class Task {
      */
     public void markAsNotDone() {
         isDone = false;
+    }
+
+    /**
+     * Returns whether this task has been completed.
+     *
+     * @return True if this task is completed.
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
+     * Returns the task data shared by every task type for file storage.
+     *
+     * @return Completion value and description separated by file delimiters.
+     */
+    public String toDataString() {
+        String completionValue = isDone ? "1" : "0";
+        return completionValue + DATA_FIELD_DELIMITER + escapeDataField(description);
+    }
+
+    /**
+     * Escapes characters that have special meaning in the storage format.
+     *
+     * @param field Task field to encode for storage.
+     * @return Encoded task field.
+     */
+    protected static String escapeDataField(String field) {
+        return field.replace("\\", "\\\\").replace("|", "\\|");
     }
 
     /**

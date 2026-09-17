@@ -1,8 +1,12 @@
 package bond;
 
+import java.nio.file.Path;
+
 import bond.exception.BondException;
+import bond.exception.StorageException;
 import bond.parser.CommandType;
 import bond.parser.Parser;
+import bond.storage.Storage;
 import bond.task.Task;
 import bond.task.TaskList;
 import bond.ui.Ui;
@@ -12,6 +16,7 @@ import bond.ui.Ui;
  */
 public class Bond {
 
+    private static final Path DATA_FILE_PATH = Path.of("data", "bond.txt");
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "I don't recognize that command.";
     private static final String UNKNOWN_COMMAND_CORRECTION =
@@ -24,12 +29,18 @@ public class Bond {
      */
     public static void main(String[] args) {
         Ui ui = new Ui();
-        TaskList taskList = new TaskList();
-
+        Storage storage = new Storage(DATA_FILE_PATH);
         ui.showWelcomeMessage();
-        processCommands(ui, taskList);
 
-        ui.close();
+        try {
+            TaskList taskList = storage.loadTasks();
+            processCommands(ui, taskList, storage);
+        } catch (StorageException e) {
+            ui.showError(e.getMessage(), e.getCorrection());
+            ui.showDivider();
+        } finally {
+            ui.close();
+        }
     }
 
     /**
@@ -37,8 +48,9 @@ public class Bond {
      *
      * @param ui Console interface used for input and output.
      * @param taskList Storage for tasks created during the session.
+     * @param storage File storage used to save task-list changes.
      */
-    private static void processCommands(Ui ui, TaskList taskList) {
+    private static void processCommands(Ui ui, TaskList taskList, Storage storage) {
         while (true) {
             String command = ui.readCommand();
             CommandType commandType = Parser.getCommandType(command);
@@ -51,7 +63,7 @@ public class Bond {
             }
 
             try {
-                executeCommand(command, commandType, taskList, ui);
+                executeCommand(command, commandType, taskList, storage, ui);
             } catch (BondException e) {
                 ui.showError(e.getMessage(), e.getCorrection());
             }
@@ -65,18 +77,19 @@ public class Bond {
      * @param command Command entered by the user.
      * @param commandType Type of operation requested by the command.
      * @param taskList Storage for tasks created during the session.
+     * @param storage File storage used to save task-list changes.
      * @param ui Console interface used to display results.
      * @throws BondException If the command cannot be executed because of invalid user input.
      */
     private static void executeCommand(String command, CommandType commandType,
-            TaskList taskList, Ui ui) throws BondException {
+            TaskList taskList, Storage storage, Ui ui) throws BondException {
         switch (commandType) {
             case LIST -> ui.showTaskList(taskList);
-            case MARK -> markTask(command, taskList, ui);
-            case UNMARK -> unmarkTask(command, taskList, ui);
-            case DELETE -> deleteTask(command, taskList, ui);
+            case MARK -> markTask(command, taskList, storage, ui);
+            case UNMARK -> unmarkTask(command, taskList, storage, ui);
+            case DELETE -> deleteTask(command, taskList, storage, ui);
             case TODO, DEADLINE, EVENT ->
-                    addTypedTask(Parser.createTask(command, commandType), taskList, ui);
+                    addTypedTask(Parser.createTask(command, commandType), taskList, storage, ui);
             case UNKNOWN -> throw new BondException(
                     UNKNOWN_COMMAND_MESSAGE, UNKNOWN_COMMAND_CORRECTION);
             default -> throw new IllegalArgumentException("Command type cannot be executed here");
@@ -88,13 +101,22 @@ public class Bond {
      *
      * @param command Mark command entered by the user.
      * @param taskList Storage containing the selected mission.
+     * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      * @throws BondException If the command does not select an existing mission.
      */
-    private static void markTask(String command, TaskList taskList, Ui ui) throws BondException {
+    private static void markTask(String command, TaskList taskList, Storage storage, Ui ui)
+            throws BondException {
         int taskIndex = Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize());
         Task task = taskList.getTask(taskIndex);
+        boolean wasDone = task.isDone();
         task.markAsDone();
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            restoreTaskStatus(task, wasDone);
+            throw e;
+        }
         ui.showTaskMarked(task);
     }
 
@@ -103,13 +125,22 @@ public class Bond {
      *
      * @param command Unmark command entered by the user.
      * @param taskList Storage containing the selected mission.
+     * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      * @throws BondException If the command does not select an existing mission.
      */
-    private static void unmarkTask(String command, TaskList taskList, Ui ui) throws BondException {
+    private static void unmarkTask(String command, TaskList taskList, Storage storage, Ui ui)
+            throws BondException {
         int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize());
         Task task = taskList.getTask(taskIndex);
+        boolean wasDone = task.isDone();
         task.markAsNotDone();
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            restoreTaskStatus(task, wasDone);
+            throw e;
+        }
         ui.showTaskUnmarked(task);
     }
 
@@ -118,12 +149,20 @@ public class Bond {
      *
      * @param command Delete command entered by the user.
      * @param taskList Storage containing the selected mission.
+     * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      * @throws BondException If the command does not select an existing mission.
      */
-    private static void deleteTask(String command, TaskList taskList, Ui ui) throws BondException {
+    private static void deleteTask(String command, TaskList taskList, Storage storage, Ui ui)
+            throws BondException {
         int taskIndex = Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize());
         Task deletedTask = taskList.deleteTask(taskIndex);
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            taskList.restoreTask(taskIndex, deletedTask);
+            throw e;
+        }
         ui.showTaskDeleted(deletedTask, taskList.getSize());
     }
 
@@ -132,10 +171,32 @@ public class Bond {
      *
      * @param task Mission to store.
      * @param taskList Storage for missions created during the session.
+     * @param storage File storage used to save the changed task list.
      * @param ui Console interface used to display the result.
      */
-    private static void addTypedTask(Task task, TaskList taskList, Ui ui) {
+    private static void addTypedTask(Task task, TaskList taskList, Storage storage, Ui ui)
+            throws BondException {
         taskList.addTask(task);
+        try {
+            storage.saveTasks(taskList);
+        } catch (StorageException e) {
+            taskList.removeLastTask();
+            throw e;
+        }
         ui.showTaskAdded(task, taskList.getSize());
+    }
+
+    /**
+     * Restores a task's completion status after a failed save.
+     *
+     * @param task Task whose status must be restored.
+     * @param wasDone Completion status before the attempted change.
+     */
+    private static void restoreTaskStatus(Task task, boolean wasDone) {
+        if (wasDone) {
+            task.markAsDone();
+        } else {
+            task.markAsNotDone();
+        }
     }
 }
