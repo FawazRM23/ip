@@ -7,6 +7,7 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 
 import bond.exception.StorageException;
@@ -149,12 +150,18 @@ public class Storage {
         boolean isDone = fields[1].equals(STATUS_DONE);
         String description = fields[2];
 
-        Task task = switch (taskType) {
-            case TASK_TYPE_TODO -> new Todo(description);
-            case TASK_TYPE_DEADLINE -> new Deadline(description, fields[3]);
-            case TASK_TYPE_EVENT -> new Event(description, fields[3], fields[4]);
-            default -> throw new IllegalStateException("Validated task type was not handled");
-        };
+        Task task;
+        try {
+            task = switch (taskType) {
+                case TASK_TYPE_TODO -> new Todo(description);
+                case TASK_TYPE_DEADLINE -> new Deadline(description, fields[3]);
+                case TASK_TYPE_EVENT -> new Event(description, fields[3], fields[4]);
+                default -> throw new IllegalStateException("Validated task type was not handled");
+            };
+        } catch (DateTimeParseException e) {
+            throw createInvalidDataException(
+                    lineNumber, "the deadline date must be a valid yyyy-MM-dd date", e);
+        }
 
         if (isDone) {
             task.markAsDone();

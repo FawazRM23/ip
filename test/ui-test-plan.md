@@ -517,7 +517,7 @@ invalid deadlines are not stored, and valid deadlines remain correct.
 ### Input 1
 
 ```text
-deadline file report /by Friday
+deadline file report /by 2019-10-15
 ```
 
 ### Expected output 1
@@ -525,7 +525,7 @@ deadline file report /by Friday
 ```text
     ____________________________________________________________
     Got it. I've added this mission:
-      [D][ ] file report (by: Friday)
+      [D][ ] file report (by: Oct 15 2019)
     Now you have 1 mission in the list.
     ____________________________________________________________
 ```
@@ -541,7 +541,7 @@ deadline
 ```text
     ____________________________________________________________
     Mission error: This deadline mission has no description.
-    Brief me with: deadline <description> /by <date or time>.
+    Brief me with: deadline <description> /by <yyyy-MM-dd>.
     ____________________________________________________________
 ```
 
@@ -556,7 +556,7 @@ list
 ```text
     ____________________________________________________________
     Here are the missions in your list:
-    1.[D][ ] file report (by: Friday)
+    1.[D][ ] file report (by: Oct 15 2019)
     ____________________________________________________________
 ```
 
@@ -571,7 +571,7 @@ deadline secure documents
 ```text
     ____________________________________________________________
     Mission error: This deadline mission is missing its /by marker.
-    Brief me with: deadline <description> /by <date or time>.
+    Brief me with: deadline <description> /by <yyyy-MM-dd>.
     ____________________________________________________________
 ```
 
@@ -585,15 +585,15 @@ deadline secure documents /by
 
 ```text
     ____________________________________________________________
-    Mission error: This deadline mission has no date or time.
-    Brief me with: deadline <description> /by <date or time>.
+    Mission error: This deadline mission has no date.
+    Brief me with: deadline <description> /by <yyyy-MM-dd>.
     ____________________________________________________________
 ```
 
 ### Input 6
 
 ```text
-deadline /by Monday
+deadline /by 2019-10-21
 ```
 
 ### Expected output 6
@@ -601,14 +601,14 @@ deadline /by Monday
 ```text
     ____________________________________________________________
     Mission error: This deadline mission has no description.
-    Brief me with: deadline <description> /by <date or time>.
+    Brief me with: deadline <description> /by <yyyy-MM-dd>.
     ____________________________________________________________
 ```
 
 ### Input 7
 
 ```text
-deadline contact M /by Monday
+deadline contact M /by 2019-10-21
 ```
 
 ### Expected output 7
@@ -616,7 +616,7 @@ deadline contact M /by Monday
 ```text
     ____________________________________________________________
     Got it. I've added this mission:
-      [D][ ] contact M (by: Monday)
+      [D][ ] contact M (by: Oct 21 2019)
     Now you have 2 missions in the list.
     ____________________________________________________________
 ```
@@ -632,18 +632,49 @@ list
 ```text
     ____________________________________________________________
     Here are the missions in your list:
-    1.[D][ ] file report (by: Friday)
-    2.[D][ ] contact M (by: Monday)
+    1.[D][ ] file report (by: Oct 15 2019)
+    2.[D][ ] contact M (by: Oct 21 2019)
     ____________________________________________________________
 ```
 
 ### Input 9
 
 ```text
-bye
+deadline check report /by 2019-02-29
 ```
 
 ### Expected output 9
+
+```text
+    ____________________________________________________________
+    Mission error: This deadline mission needs a valid date in yyyy-MM-dd format.
+    Brief me with: deadline <description> /by <yyyy-MM-dd>.
+    ____________________________________________________________
+```
+
+### Input 10
+
+```text
+list
+```
+
+### Expected output 10
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[D][ ] file report (by: Oct 15 2019)
+    2.[D][ ] contact M (by: Oct 21 2019)
+    ____________________________________________________________
+```
+
+### Input 11
+
+```text
+bye
+```
+
+### Expected output 11
 
 ```text
     ____________________________________________________________
@@ -2919,7 +2950,7 @@ T | 0 | read book
 ### Input 2
 
 ```text
-deadline return book /by June 6th
+deadline return book /by 2019-06-06
 ```
 
 ### Expected output 2
@@ -2927,7 +2958,7 @@ deadline return book /by June 6th
 ```text
     ____________________________________________________________
     Got it. I've added this mission:
-      [D][ ] return book (by: June 6th)
+      [D][ ] return book (by: Jun 06 2019)
     Now you have 2 missions in the list.
     ____________________________________________________________
 ```
@@ -2936,7 +2967,7 @@ deadline return book /by June 6th
 
 ```text
 T | 0 | read book
-D | 0 | return book | June 6th
+D | 0 | return book | 2019-06-06
 ```
 
 ### Input 3
@@ -2959,7 +2990,7 @@ event project meeting /from Aug 6th 2pm /to 4pm
 
 ```text
 T | 0 | read book
-D | 0 | return book | June 6th
+D | 0 | return book | 2019-06-06
 E | 0 | project meeting | Aug 6th 2pm | 4pm
 ```
 
@@ -2974,7 +3005,7 @@ mark 2
 ```text
     ____________________________________________________________
     Nice work, agent! Another mission accomplished!:
-      [D][X] return book (by: June 6th)
+      [D][X] return book (by: Jun 06 2019)
     ____________________________________________________________
 ```
 
@@ -2982,7 +3013,7 @@ mark 2
 
 ```text
 T | 0 | read book
-D | 1 | return book | June 6th
+D | 1 | return book | 2019-06-06
 E | 0 | project meeting | Aug 6th 2pm | 4pm
 ```
 
@@ -2997,7 +3028,7 @@ unmark 2
 ```text
     ____________________________________________________________
     OK, I've marked this mission as not accomplished yet:
-      [D][ ] return book (by: June 6th)
+      [D][ ] return book (by: Jun 06 2019)
     ____________________________________________________________
 ```
 
@@ -3005,7 +3036,7 @@ unmark 2
 
 ```text
 T | 0 | read book
-D | 0 | return book | June 6th
+D | 0 | return book | 2019-06-06
 E | 0 | project meeting | Aug 6th 2pm | 4pm
 ```
 
@@ -3027,7 +3058,7 @@ bye
 
 ```text
 T | 0 | read book
-D | 0 | return book | June 6th
+D | 0 | return book | 2019-06-06
 E | 0 | project meeting | Aug 6th 2pm | 4pm
 ```
 
@@ -3058,7 +3089,7 @@ todo read book
 ### Session 1, input 2
 
 ```text
-deadline return book /by June 6th
+deadline return book /by 2019-06-06
 ```
 
 ### Session 1, expected output 2
@@ -3066,7 +3097,7 @@ deadline return book /by June 6th
 ```text
     ____________________________________________________________
     Got it. I've added this mission:
-      [D][ ] return book (by: June 6th)
+      [D][ ] return book (by: Jun 06 2019)
     Now you have 2 missions in the list.
     ____________________________________________________________
 ```
@@ -3143,7 +3174,7 @@ list
     ____________________________________________________________
     Here are the missions in your list:
     1.[T][X] read book
-    2.[D][ ] return book (by: June 6th)
+    2.[D][ ] return book (by: Jun 06 2019)
     3.[E][X] project meeting (from: Aug 6th 2pm to: 4pm)
     ____________________________________________________________
 ```
@@ -3339,6 +3370,22 @@ None; Bond exits after detecting the startup error.
     ____________________________________________________________
 ```
 
+### Subcase G initial data
+
+Copy `test/fixtures/storage/invalid-deadline-date.txt`.
+
+### Subcase G input
+
+None; Bond exits after detecting the startup error.
+
+### Subcase G expected output after startup
+
+```text
+    Mission error: Mission archive line 1 is invalid: the deadline date must be a valid yyyy-MM-dd date.
+    Repair or remove ./data/bond.txt, then restart Bond.
+    ____________________________________________________________
+```
+
 ## UI-16: Reject an invalid archive path
 
 **Aim:** Verify that a directory at the configured data-file path produces a
@@ -3527,7 +3574,7 @@ T | 0 | read book
 ### Session 1, input 2
 
 ```text
-deadline return book /by June 6th
+deadline return book /by 2019-06-06
 ```
 
 ### Session 1, expected output 2
@@ -3535,7 +3582,7 @@ deadline return book /by June 6th
 ```text
     ____________________________________________________________
     Got it. I've added this mission:
-      [D][ ] return book (by: June 6th)
+      [D][ ] return book (by: Jun 06 2019)
     Now you have 2 missions in the list.
     ____________________________________________________________
 ```
@@ -3544,7 +3591,7 @@ deadline return book /by June 6th
 
 ```text
 T | 0 | read book
-D | 0 | return book | June 6th
+D | 0 | return book | 2019-06-06
 ```
 
 ### Session 1, input 3
@@ -3566,7 +3613,7 @@ delete 1
 ### Session 1, expected data file 3
 
 ```text
-D | 0 | return book | June 6th
+D | 0 | return book | 2019-06-06
 ```
 
 ### Session 1, input 4
@@ -3580,7 +3627,7 @@ list
 ```text
     ____________________________________________________________
     Here are the missions in your list:
-    1.[D][ ] return book (by: June 6th)
+    1.[D][ ] return book (by: Jun 06 2019)
     ____________________________________________________________
 ```
 
@@ -3609,7 +3656,7 @@ list
 ```text
     ____________________________________________________________
     Here are the missions in your list:
-    1.[D][ ] return book (by: June 6th)
+    1.[D][ ] return book (by: Jun 06 2019)
     ____________________________________________________________
 ```
 
