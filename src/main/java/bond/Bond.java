@@ -2,6 +2,7 @@ package bond;
 
 import java.nio.file.Path;
 
+import bond.command.AddCommand;
 import bond.command.Command;
 import bond.command.ListCommand;
 import bond.exception.BondException;
@@ -106,7 +107,10 @@ public class Bond {
             case MARK -> markTask(command);
             case UNMARK -> unmarkTask(command);
             case DELETE -> deleteTask(command);
-            case TODO, DEADLINE, EVENT -> addTypedTask(Parser.createTask(command, commandType));
+            case TODO, DEADLINE, EVENT -> {
+                Command addCommand = new AddCommand(Parser.createTask(command, commandType));
+                addCommand.execute(taskList, ui, storage);
+            }
             case UNKNOWN -> throw new BondException(
                     UNKNOWN_COMMAND_MESSAGE, UNKNOWN_COMMAND_CORRECTION);
             default -> throw new IllegalArgumentException("Command type cannot be executed here");
@@ -169,23 +173,6 @@ public class Bond {
             throw e;
         }
         ui.showTaskDeleted(deletedTask, taskList.getSize());
-    }
-
-    /**
-     * Adds a parsed mission to storage and reports the updated mission count.
-     *
-     * @param task Mission to store.
-     * @throws BondException If the updated task list cannot be saved.
-     */
-    private void addTypedTask(Task task) throws BondException {
-        taskList.addTask(task);
-        try {
-            storage.saveTasks(taskList);
-        } catch (StorageException e) {
-            taskList.removeLastTask();
-            throw e;
-        }
-        ui.showTaskAdded(task, taskList.getSize());
     }
 
     /**
