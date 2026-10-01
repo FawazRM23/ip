@@ -6,12 +6,13 @@ import bond.command.AddCommand;
 import bond.command.Command;
 import bond.command.DeleteCommand;
 import bond.command.ListCommand;
+import bond.command.MarkCommand;
+import bond.command.UnmarkCommand;
 import bond.exception.BondException;
 import bond.exception.StorageException;
 import bond.parser.CommandType;
 import bond.parser.Parser;
 import bond.storage.Storage;
-import bond.task.Task;
 import bond.task.TaskList;
 import bond.ui.Ui;
 
@@ -105,8 +106,16 @@ public class Bond {
                 Command listCommand = new ListCommand();
                 listCommand.execute(taskList, ui, storage);
             }
-            case MARK -> markTask(command);
-            case UNMARK -> unmarkTask(command);
+            case MARK -> {
+                int taskIndex = Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize());
+                Command markCommand = new MarkCommand(taskIndex);
+                markCommand.execute(taskList, ui, storage);
+            }
+            case UNMARK -> {
+                int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize());
+                Command unmarkCommand = new UnmarkCommand(taskIndex);
+                unmarkCommand.execute(taskList, ui, storage);
+            }
             case DELETE -> {
                 int taskIndex = Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize());
                 Command deleteCommand = new DeleteCommand(taskIndex);
@@ -119,60 +128,6 @@ public class Bond {
             case UNKNOWN -> throw new BondException(
                     UNKNOWN_COMMAND_MESSAGE, UNKNOWN_COMMAND_CORRECTION);
             default -> throw new IllegalArgumentException("Command type cannot be executed here");
-        }
-    }
-
-    /**
-     * Marks the mission selected by a mark command as complete.
-     *
-     * @param command Mark command entered by the user.
-     * @throws BondException If the command does not select an existing mission.
-     */
-    private void markTask(String command) throws BondException {
-        int taskIndex = Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize());
-        Task task = taskList.getTask(taskIndex);
-        boolean wasDone = task.isDone();
-        task.markAsDone();
-        try {
-            storage.saveTasks(taskList);
-        } catch (StorageException e) {
-            restoreTaskStatus(task, wasDone);
-            throw e;
-        }
-        ui.showTaskMarked(task);
-    }
-
-    /**
-     * Marks the mission selected by an unmark command as incomplete.
-     *
-     * @param command Unmark command entered by the user.
-     * @throws BondException If the command does not select an existing mission.
-     */
-    private void unmarkTask(String command) throws BondException {
-        int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize());
-        Task task = taskList.getTask(taskIndex);
-        boolean wasDone = task.isDone();
-        task.markAsNotDone();
-        try {
-            storage.saveTasks(taskList);
-        } catch (StorageException e) {
-            restoreTaskStatus(task, wasDone);
-            throw e;
-        }
-        ui.showTaskUnmarked(task);
-    }
-
-    /**
-     * Restores a task's completion status after a failed save.
-     *
-     * @param task Task whose status must be restored.
-     * @param wasDone Completion status before the attempted change.
-     */
-    private static void restoreTaskStatus(Task task, boolean wasDone) {
-        if (wasDone) {
-            task.markAsDone();
-        } else {
-            task.markAsNotDone();
         }
     }
 }
