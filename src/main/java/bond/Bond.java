@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import bond.command.AddCommand;
 import bond.command.Command;
 import bond.command.DeleteCommand;
+import bond.command.ExitCommand;
 import bond.command.ListCommand;
 import bond.command.MarkCommand;
 import bond.command.UnmarkCommand;
@@ -73,61 +74,46 @@ public class Bond {
      * Reads and executes commands until the user exits Bond.
      */
     private void processCommands() {
-        while (true) {
+        boolean isExit = false;
+        while (!isExit) {
             String command = ui.readCommand();
             CommandType commandType = Parser.getCommandType(command);
 
             ui.showDivider();
 
-            if (commandType == CommandType.BYE) {
-                ui.showGoodbyeMessage();
-                break;
-            }
-
             try {
-                executeCommand(command, commandType);
+                Command parsedCommand = createCommand(command, commandType);
+                parsedCommand.execute(taskList, ui, storage);
+                isExit = parsedCommand.isExit();
             } catch (BondException e) {
                 ui.showError(e.getMessage(), e.getCorrection());
+            } finally {
+                ui.showDivider();
             }
-            ui.showDivider();
         }
     }
 
     /**
-     * Dispatches a command to the operation that handles it.
+     * Creates the operation requested by a user command.
      *
      * @param command Command entered by the user.
      * @param commandType Type of operation requested by the command.
-     * @throws BondException If the command cannot be executed because of invalid user input.
+     * @return Command ready to execute against the current task list.
+     * @throws BondException If the user input does not describe a valid command.
      */
-    private void executeCommand(String command, CommandType commandType) throws BondException {
-        switch (commandType) {
-            case LIST -> {
-                Command listCommand = new ListCommand();
-                listCommand.execute(taskList, ui, storage);
-            }
-            case MARK -> {
-                int taskIndex = Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize());
-                Command markCommand = new MarkCommand(taskIndex);
-                markCommand.execute(taskList, ui, storage);
-            }
-            case UNMARK -> {
-                int taskIndex = Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize());
-                Command unmarkCommand = new UnmarkCommand(taskIndex);
-                unmarkCommand.execute(taskList, ui, storage);
-            }
-            case DELETE -> {
-                int taskIndex = Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize());
-                Command deleteCommand = new DeleteCommand(taskIndex);
-                deleteCommand.execute(taskList, ui, storage);
-            }
-            case TODO, DEADLINE, EVENT -> {
-                Command addCommand = new AddCommand(Parser.createTask(command, commandType));
-                addCommand.execute(taskList, ui, storage);
-            }
+    private Command createCommand(String command, CommandType commandType) throws BondException {
+        return switch (commandType) {
+            case BYE -> new ExitCommand();
+            case LIST -> new ListCommand();
+            case MARK -> new MarkCommand(
+                    Parser.getTaskIndex(command, CommandType.MARK, taskList.getSize()));
+            case UNMARK -> new UnmarkCommand(
+                    Parser.getTaskIndex(command, CommandType.UNMARK, taskList.getSize()));
+            case DELETE -> new DeleteCommand(
+                    Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize()));
+            case TODO, DEADLINE, EVENT -> new AddCommand(Parser.createTask(command, commandType));
             case UNKNOWN -> throw new BondException(
                     UNKNOWN_COMMAND_MESSAGE, UNKNOWN_COMMAND_CORRECTION);
-            default -> throw new IllegalArgumentException("Command type cannot be executed here");
-        }
+        };
     }
 }

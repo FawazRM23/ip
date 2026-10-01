@@ -19,4 +19,13 @@ public abstract class Command {
      * @throws BondException If the operation cannot be completed.
      */
     public abstract void execute(TaskList taskList, Ui ui, Storage storage) throws BondException;
+
+    /**
+     * Returns whether the session should end after this command executes successfully.
+     *
+     * @return False unless the command requests an exit.
+     */
+    public boolean isExit() {
+        return false;
+    }
 }

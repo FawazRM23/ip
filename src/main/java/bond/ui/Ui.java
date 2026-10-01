@@ -54,11 +54,10 @@ public class Ui {
     }
 
     /**
-     * Displays Bond's farewell message and the closing divider.
+     * Displays Bond's farewell message.
      */
     public void showGoodbyeMessage() {
         System.out.println("    Bye. Hope to embark on a mission again soon!");
-        System.out.println(DIVIDER);
     }
 
     /**
