@@ -4,10 +4,22 @@ Bond is a command-line chatbot that helps you keep track of missions (tasks). Yo
 
 ## Getting started
 
-1. Install JDK 25 and open this project in IntelliJ IDEA.
-2. Set the project SDK to JDK 25.
-3. Run `bond.Bond.main()` from `src/main/java/bond/Bond.java`.
-4. Type one command at a time in the Run window and press Enter. Type `bye` when you are finished.
+### Run the released JAR
+
+1. Install JDK 25. Open a terminal and run `java -version` to check that Java 25 is available.
+2. Download `bond.jar` from the [latest GitHub release](https://github.com/FawazRM23/ip/releases/latest).
+3. Put `bond.jar` in an empty folder and open a terminal in that folder.
+4. Run:
+
+   ```text
+   java -jar bond.jar
+   ```
+
+5. Type one command at a time and press Enter. Type `bye` when you are finished.
+
+### Run from source
+
+Open this project in IntelliJ IDEA, set the project SDK to JDK 25, and run `bond.Bond.main()` from `src/main/java/bond/Bond.java`. Enter commands in the Run window.
 
 Commands are lowercase. For commands with details, put a space after the command word. Bond calls tasks **missions** in its responses.
 
