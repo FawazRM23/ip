@@ -207,7 +207,7 @@ blah
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
+    Try: todo, deadline, event, find, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -253,7 +253,7 @@ list now
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
+    Try: todo, deadline, event, find, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -319,7 +319,7 @@ todo inspect equipment
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
+    Try: todo, deadline, event, find, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -349,7 +349,7 @@ LIST
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
+    Try: todo, deadline, event, find, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -379,7 +379,7 @@ list
 ```text
     ____________________________________________________________
     Mission error: I don't recognize that command.
-    Try: todo, deadline, event, list, mark, unmark, delete, or bye.
+    Try: todo, deadline, event, find, list, mark, unmark, delete, or bye.
     ____________________________________________________________
 ```
 
@@ -3674,6 +3674,179 @@ bye
 ```
 
 ### Expected output 3
+
+```text
+    ____________________________________________________________
+    Bye. Hope to embark on a mission again soon!
+    ____________________________________________________________
+```
+
+## UI-21: Find missions by description
+
+**Aim:** Verify that `find` searches descriptions without regard to case,
+shows original mission numbers, ignores dates outside descriptions, rejects an
+empty keyword, and does not change the stored list.
+
+### Input 1
+
+```text
+todo read book
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] read book
+    Now you have 1 mission in the list.
+    ____________________________________________________________
+```
+
+### Input 2
+
+```text
+todo prepare kit
+```
+
+### Expected output 2
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [T][ ] prepare kit
+    Now you have 2 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 3
+
+```text
+deadline return Book /by June 6th
+```
+
+### Expected output 3
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [D][ ] return Book (by: June 6th)
+    Now you have 3 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 4
+
+```text
+event book club /from Friday /to Saturday
+```
+
+### Expected output 4
+
+```text
+    ____________________________________________________________
+    Got it. I've added this mission:
+      [E][ ] book club (from: Friday to: Saturday)
+    Now you have 4 missions in the list.
+    ____________________________________________________________
+```
+
+### Input 5
+
+```text
+find BOOK
+```
+
+### Expected output 5
+
+```text
+    ____________________________________________________________
+    Here are the matching missions in your list:
+    1.[T][ ] read book
+    3.[D][ ] return Book (by: June 6th)
+    4.[E][ ] book club (from: Friday to: Saturday)
+    ____________________________________________________________
+```
+
+### Expected data file 5
+
+```text
+T | 0 | read book
+T | 0 | prepare kit
+D | 0 | return Book | June 6th
+E | 0 | book club | Friday | Saturday
+```
+
+### Input 6
+
+```text
+find June
+```
+
+### Expected output 6
+
+```text
+    ____________________________________________________________
+    Here are the matching missions in your list:
+    No missions match that keyword.
+    ____________________________________________________________
+```
+
+### Input 7
+
+```text
+find book club
+```
+
+### Expected output 7
+
+```text
+    ____________________________________________________________
+    Here are the matching missions in your list:
+    4.[E][ ] book club (from: Friday to: Saturday)
+    ____________________________________________________________
+```
+
+### Input 8
+
+```text
+find
+```
+
+### Expected output 8
+
+```text
+    ____________________________________________________________
+    Mission error: This find order needs a keyword.
+    Brief me with: find <keyword>.
+    ____________________________________________________________
+```
+
+### Input 9
+
+```text
+list
+```
+
+### Expected output 9
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    1.[T][ ] read book
+    2.[T][ ] prepare kit
+    3.[D][ ] return Book (by: June 6th)
+    4.[E][ ] book club (from: Friday to: Saturday)
+    ____________________________________________________________
+```
+
+### Input 10
+
+```text
+bye
+```
+
+### Expected output 10
 
 ```text
     ____________________________________________________________

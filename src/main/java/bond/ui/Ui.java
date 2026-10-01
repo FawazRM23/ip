@@ -1,8 +1,9 @@
 package bond.ui;
 
+import java.util.Scanner;
+
 import bond.task.Task;
 import bond.task.TaskList;
-import java.util.Scanner;
 
 /**
  * Handles console input and output for Bond.
@@ -69,6 +70,27 @@ public class Ui {
         System.out.println("    Here are the missions in your list:");
         for (int i = 0; i < taskList.getSize(); i++) {
             System.out.println("    " + (i + 1) + "." + taskList.getTask(i));
+        }
+    }
+
+    /**
+     * Displays tasks whose descriptions contain the keyword, using their list numbers.
+     *
+     * @param taskList Tasks to search in their stored order.
+     * @param keyword Keyword or phrase to find in task descriptions.
+     */
+    public void showMatchingTasks(TaskList taskList, String keyword) {
+        System.out.println("    Here are the matching missions in your list:");
+        int matchCount = 0;
+        for (int i = 0; i < taskList.getSize(); i++) {
+            Task task = taskList.getTask(i);
+            if (task.matchesDescription(keyword)) {
+                System.out.println("    " + (i + 1) + "." + task);
+                matchCount++;
+            }
+        }
+        if (matchCount == 0) {
+            System.out.println("    No missions match that keyword.");
         }
     }
 

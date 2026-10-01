@@ -4,6 +4,7 @@ import bond.command.AddCommand;
 import bond.command.Command;
 import bond.command.DeleteCommand;
 import bond.command.ExitCommand;
+import bond.command.FindCommand;
 import bond.command.ListCommand;
 import bond.command.MarkCommand;
 import bond.command.UnmarkCommand;
@@ -20,6 +21,7 @@ public final class Parser {
 
     private static final String COMMAND_BYE = "bye";
     private static final String COMMAND_LIST = "list";
+    private static final String COMMAND_FIND = "find";
     private static final String COMMAND_MARK = "mark";
     private static final String COMMAND_UNMARK = "unmark";
     private static final String COMMAND_DELETE = "delete";
@@ -37,10 +39,11 @@ public final class Parser {
             "Brief me with: deadline <description> /by <date or time>.";
     private static final String EVENT_CORRECTION =
             "Brief me with: event <description> /from <start> /to <end>.";
+    private static final String FIND_CORRECTION = "Brief me with: find <keyword>.";
     private static final String UNKNOWN_COMMAND_MESSAGE =
             "I don't recognize that command.";
     private static final String UNKNOWN_COMMAND_CORRECTION =
-            "Try: todo, deadline, event, list, mark, unmark, delete, or bye.";
+            "Try: todo, deadline, event, find, list, mark, unmark, delete, or bye.";
 
     private Parser() {
     }
@@ -60,6 +63,7 @@ public final class Parser {
         return switch (commandType) {
             case BYE -> new ExitCommand();
             case LIST -> new ListCommand();
+            case FIND -> new FindCommand(getFindKeyword(command));
             case MARK -> new MarkCommand(getTaskIndex(command, CommandType.MARK, taskCount));
             case UNMARK -> new UnmarkCommand(getTaskIndex(command, CommandType.UNMARK, taskCount));
             case DELETE -> new DeleteCommand(getTaskIndex(command, CommandType.DELETE, taskCount));
@@ -81,6 +85,9 @@ public final class Parser {
         }
         if (command.equals(COMMAND_LIST)) {
             return CommandType.LIST;
+        }
+        if (isCommandWithDetails(command, COMMAND_FIND)) {
+            return CommandType.FIND;
         }
         if (isCommandWithDetails(command, COMMAND_MARK)) {
             return CommandType.MARK;
@@ -152,6 +159,21 @@ public final class Parser {
         }
 
         return taskNumber - 1;
+    }
+
+    /**
+     * Returns the keyword from a find command after checking that it is present.
+     *
+     * @param command Find command entered by the user.
+     * @return Nonempty keyword to search for.
+     * @throws BondException If the keyword is missing.
+     */
+    private static String getFindKeyword(String command) throws BondException {
+        String keyword = getCommandDetails(command, COMMAND_FIND);
+        if (keyword.isEmpty()) {
+            throw new BondException("This find order needs a keyword.", FIND_CORRECTION);
+        }
+        return keyword;
     }
 
     /**

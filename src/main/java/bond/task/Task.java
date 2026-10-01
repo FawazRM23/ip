@@ -1,5 +1,7 @@
 package bond.task;
 
+import java.util.Locale;
+
 /**
  * Represents a task with a description and completion status.
  */
@@ -50,6 +52,16 @@ public class Task {
      */
     public boolean isDone() {
         return isDone;
+    }
+
+    /**
+     * Returns whether this task's description contains a keyword, ignoring case.
+     *
+     * @param keyword Keyword or phrase to find in the description.
+     * @return True if the description contains the keyword.
+     */
+    public boolean matchesDescription(String keyword) {
+        return description.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 
     /**
