@@ -1,5 +1,7 @@
 package bond.parser;
 
+import java.time.format.DateTimeParseException;
+
 import bond.command.AddCommand;
 import bond.command.Command;
 import bond.command.DeleteCommand;
@@ -34,7 +36,7 @@ public final class Parser {
     private static final String TODO_CORRECTION =
             "Brief me with: todo <description>.";
     private static final String DEADLINE_CORRECTION =
-            "Brief me with: deadline <description> /by <date or time>.";
+            "Brief me with: deadline <description> /by <yyyy-MM-dd>.";
     private static final String EVENT_CORRECTION =
             "Brief me with: event <description> /from <start> /to <end>.";
     private static final String UNKNOWN_COMMAND_MESSAGE =
@@ -188,7 +190,7 @@ public final class Parser {
     }
 
     /**
-     * Creates a deadline task after validating its description and deadline.
+     * Creates a deadline task after validating its description and date.
      *
      * @param command Deadline command entered by the user.
      * @return Deadline described by the command.
@@ -217,9 +219,15 @@ public final class Parser {
         }
         if (by.isEmpty()) {
             throw new BondException(
-                    "This deadline mission has no date or time.", DEADLINE_CORRECTION);
+                    "This deadline mission has no date.", DEADLINE_CORRECTION);
         }
-        return new Deadline(description, by);
+        try {
+            return new Deadline(description, by);
+        } catch (DateTimeParseException e) {
+            throw new BondException(
+                    "This deadline mission needs a valid date in yyyy-MM-dd format.",
+                    DEADLINE_CORRECTION);
+        }
     }
 
     /**
