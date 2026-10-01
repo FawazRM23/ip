@@ -1,5 +1,12 @@
 package bond.parser;
 
+import bond.command.AddCommand;
+import bond.command.Command;
+import bond.command.DeleteCommand;
+import bond.command.ExitCommand;
+import bond.command.ListCommand;
+import bond.command.MarkCommand;
+import bond.command.UnmarkCommand;
 import bond.exception.BondException;
 import bond.task.Deadline;
 import bond.task.Event;
@@ -7,7 +14,7 @@ import bond.task.Task;
 import bond.task.Todo;
 
 /**
- * Interprets user commands and converts their arguments into domain objects.
+ * Interprets user input and creates validated commands ready for execution.
  */
 public final class Parser {
 
@@ -30,8 +37,36 @@ public final class Parser {
             "Brief me with: deadline <description> /by <date or time>.";
     private static final String EVENT_CORRECTION =
             "Brief me with: event <description> /from <start> /to <end>.";
+    private static final String UNKNOWN_COMMAND_MESSAGE =
+            "I don't recognize that command.";
+    private static final String UNKNOWN_COMMAND_CORRECTION =
+            "Try: todo, deadline, event, list, mark, unmark, delete, or bye.";
 
     private Parser() {
+    }
+
+    /**
+     * Parses user input into a command without changing the task list.
+     * Task selections are validated against the supplied count, so the returned
+     * command should execute before the task list changes.
+     *
+     * @param command Command entered by the user.
+     * @param taskCount Number of tasks available for selection in the current session.
+     * @return Validated command ready to execute against the current task list.
+     * @throws BondException If the command is unknown or its arguments are invalid.
+     */
+    public static Command parse(String command, int taskCount) throws BondException {
+        CommandType commandType = getCommandType(command);
+        return switch (commandType) {
+            case BYE -> new ExitCommand();
+            case LIST -> new ListCommand();
+            case MARK -> new MarkCommand(getTaskIndex(command, CommandType.MARK, taskCount));
+            case UNMARK -> new UnmarkCommand(getTaskIndex(command, CommandType.UNMARK, taskCount));
+            case DELETE -> new DeleteCommand(getTaskIndex(command, CommandType.DELETE, taskCount));
+            case TODO, DEADLINE, EVENT -> new AddCommand(createTask(command, commandType));
+            case UNKNOWN -> throw new BondException(
+                    UNKNOWN_COMMAND_MESSAGE, UNKNOWN_COMMAND_CORRECTION);
+        };
     }
 
     /**
@@ -40,7 +75,7 @@ public final class Parser {
      * @param command Command entered by the user.
      * @return Type of the requested command.
      */
-    public static CommandType getCommandType(String command) {
+    private static CommandType getCommandType(String command) {
         if (command.equals(COMMAND_BYE)) {
             return CommandType.BYE;
         }
@@ -77,7 +112,7 @@ public final class Parser {
      * @return Zero-based index of the referenced task.
      * @throws BondException If the mission number is missing, malformed, or outside the task list.
      */
-    public static int getTaskIndex(String command, CommandType commandType,
+    private static int getTaskIndex(String command, CommandType commandType,
             int taskCount) throws BondException {
         String commandName = switch (commandType) {
             case MARK -> COMMAND_MARK;
@@ -127,7 +162,7 @@ public final class Parser {
      * @return Task described by the command.
      * @throws BondException If required task details are missing.
      */
-    public static Task createTask(String command, CommandType commandType) throws BondException {
+    private static Task createTask(String command, CommandType commandType) throws BondException {
         return switch (commandType) {
             case TODO -> createTodo(command);
             case DEADLINE -> createDeadline(command);
