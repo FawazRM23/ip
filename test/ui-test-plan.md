@@ -3900,3 +3900,36 @@ bye
     Bye. Hope to embark on a mission again soon!
     ____________________________________________________________
 ```
+
+## UI-22: Exit when input ends
+
+**Aim:** Verify that Bond exits normally after standard input closes without a
+`bye` command, instead of printing a Java exception.
+
+Run in a clean temporary working directory. Send the single line below through
+a finite input stream, then close standard input.
+
+### Input 1
+
+```text
+list
+```
+
+### Expected output 1
+
+```text
+    ____________________________________________________________
+    Here are the missions in your list:
+    ____________________________________________________________
+```
+
+### Input 2 (end of input)
+
+Close standard input without entering another command.
+
+### Expected output 2
+
+```text
+```
+
+Bond exits with status code 0.

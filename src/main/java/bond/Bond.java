@@ -33,7 +33,7 @@ public class Bond {
     }
 
     /**
-     * Starts Bond and processes user commands until the user enters "bye".
+     * Starts Bond and processes user commands until the user enters "bye" or input ends.
      *
      * @param args Command-line arguments, which are not used.
      */
@@ -60,11 +60,11 @@ public class Bond {
     }
 
     /**
-     * Reads and executes commands until the user exits Bond.
+     * Reads and executes commands until the user exits Bond or input ends.
      */
     private void processCommands() {
         boolean isExit = false;
-        while (!isExit) {
+        while (!isExit && ui.hasNextCommand()) {
             String command = ui.readCommand();
 
             ui.showDivider();

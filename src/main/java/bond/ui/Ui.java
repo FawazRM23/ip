@@ -28,6 +28,15 @@ public class Ui {
     }
 
     /**
+     * Returns whether another command can be read from standard input.
+     *
+     * @return True if input has not ended.
+     */
+    public boolean hasNextCommand() {
+        return scanner.hasNextLine();
+    }
+
+    /**
      * Returns the next command entered by the user.
      *
      * @return Next user command.
