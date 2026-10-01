@@ -3769,7 +3769,7 @@ todo prepare kit
 ### Input 3
 
 ```text
-deadline return Book /by June 6th
+deadline return Book /by 2019-06-06
 ```
 
 ### Expected output 3
@@ -3777,7 +3777,7 @@ deadline return Book /by June 6th
 ```text
     ____________________________________________________________
     Got it. I've added this mission:
-      [D][ ] return Book (by: June 6th)
+      [D][ ] return Book (by: Jun 06 2019)
     Now you have 3 missions in the list.
     ____________________________________________________________
 ```
@@ -3810,7 +3810,7 @@ find BOOK
     ____________________________________________________________
     Here are the matching missions in your list:
     1.[T][ ] read book
-    3.[D][ ] return Book (by: June 6th)
+    3.[D][ ] return Book (by: Jun 06 2019)
     4.[E][ ] book club (from: Friday to: Saturday)
     ____________________________________________________________
 ```
@@ -3820,14 +3820,14 @@ find BOOK
 ```text
 T | 0 | read book
 T | 0 | prepare kit
-D | 0 | return Book | June 6th
+D | 0 | return Book | 2019-06-06
 E | 0 | book club | Friday | Saturday
 ```
 
 ### Input 6
 
 ```text
-find June
+find Jun
 ```
 
 ### Expected output 6
@@ -3882,7 +3882,7 @@ list
     Here are the missions in your list:
     1.[T][ ] read book
     2.[T][ ] prepare kit
-    3.[D][ ] return Book (by: June 6th)
+    3.[D][ ] return Book (by: Jun 06 2019)
     4.[E][ ] book club (from: Friday to: Saturday)
     ____________________________________________________________
 ```
