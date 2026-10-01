@@ -2,6 +2,8 @@ package bond;
 
 import java.nio.file.Path;
 
+import bond.command.Command;
+import bond.command.ListCommand;
 import bond.exception.BondException;
 import bond.exception.StorageException;
 import bond.parser.CommandType;
@@ -97,7 +99,10 @@ public class Bond {
      */
     private void executeCommand(String command, CommandType commandType) throws BondException {
         switch (commandType) {
-            case LIST -> ui.showTaskList(taskList);
+            case LIST -> {
+                Command listCommand = new ListCommand();
+                listCommand.execute(taskList, ui, storage);
+            }
             case MARK -> markTask(command);
             case UNMARK -> unmarkTask(command);
             case DELETE -> deleteTask(command);
