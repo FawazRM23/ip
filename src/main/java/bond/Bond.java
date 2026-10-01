@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import bond.command.AddCommand;
 import bond.command.Command;
+import bond.command.DeleteCommand;
 import bond.command.ListCommand;
 import bond.exception.BondException;
 import bond.exception.StorageException;
@@ -106,7 +107,11 @@ public class Bond {
             }
             case MARK -> markTask(command);
             case UNMARK -> unmarkTask(command);
-            case DELETE -> deleteTask(command);
+            case DELETE -> {
+                int taskIndex = Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize());
+                Command deleteCommand = new DeleteCommand(taskIndex);
+                deleteCommand.execute(taskList, ui, storage);
+            }
             case TODO, DEADLINE, EVENT -> {
                 Command addCommand = new AddCommand(Parser.createTask(command, commandType));
                 addCommand.execute(taskList, ui, storage);
@@ -155,24 +160,6 @@ public class Bond {
             throw e;
         }
         ui.showTaskUnmarked(task);
-    }
-
-    /**
-     * Deletes the mission selected by a delete command.
-     *
-     * @param command Delete command entered by the user.
-     * @throws BondException If the command does not select an existing mission.
-     */
-    private void deleteTask(String command) throws BondException {
-        int taskIndex = Parser.getTaskIndex(command, CommandType.DELETE, taskList.getSize());
-        Task deletedTask = taskList.deleteTask(taskIndex);
-        try {
-            storage.saveTasks(taskList);
-        } catch (StorageException e) {
-            taskList.restoreTask(taskIndex, deletedTask);
-            throw e;
-        }
-        ui.showTaskDeleted(deletedTask, taskList.getSize());
     }
 
     /**
